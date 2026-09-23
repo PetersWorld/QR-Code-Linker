@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR Code Linker</title>
+  <meta name="description" content="Combine multiple links into a single QR code.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Builder: shown when there are no links in the URL -->
+  <main id="builder" class="container" hidden>
+    <header>
+      <h1>QR Code Linker</h1>
+      <p class="subtitle">Combine several links into one QR code. Scanning it opens a page listing all of them.</p>
+    </header>
+
+    <section class="card">
+      <label class="field">
+        <span>Page title</span>
+        <input id="title" type="text" maxlength="80" placeholder="e.g. My links">
+      </label>
+
+      <div class="links-header">
+        <h2>Links</h2>
+        <button id="add-link" type="button" class="btn secondary">+ Add link</button>
+      </div>
+      <ol id="links" class="links"></ol>
+
+      <fieldset class="mode">
+        <legend>QR code contains</legend>
+        <label><input type="radio" name="mode" value="page" checked> A link to a page listing every link <small>(recommended)</small></label>
+        <label><input type="radio" name="mode" value="text"> The links as plain text <small>(works offline, links are not always tappable)</small></label>
+      </fieldset>
+
+      <p id="error" class="error" role="alert" hidden></p>
+    </section>
+
+    <section id="result" class="card result" hidden>
+      <div id="qr" class="qr" aria-label="Generated QR code"></div>
+      <p id="file-warning" class="warning" hidden>
+        You opened this app from a local file, so phones can't reach the link inside the QR code.
+        Host it (e.g. on GitHub Pages) or use the "plain text" option.
+      </p>
+      <div class="actions">
+        <button id="download-png" type="button" class="btn">Download PNG</button>
+        <button id="download-svg" type="button" class="btn secondary">Download SVG</button>
+        <button id="copy-link" type="button" class="btn secondary">Copy link</button>
+        <a id="open-link" class="btn secondary" target="_blank" rel="noopener">Preview page</a>
+      </div>
+      <p class="meta" id="meta"></p>
+    </section>
+  </main>
+
+  <!-- Landing: shown when a QR code is scanned -->
+  <main id="landing" class="container narrow" hidden>
+    <header>
+      <h1 id="landing-title"></h1>
+    </header>
+    <ul id="landing-links" class="landing-links"></ul>
+    <p class="footer"><a href="./">Create your own QR code</a></p>
+  </main>
+
+  <template id="link-row">
+    <li class="link-row">
+      <input class="label" type="text" maxlength="60" placeholder="Label (optional)" aria-label="Link label">
+      <input class="url" type="url" placeholder="https://example.com" aria-label="Link URL">
+      <button type="button" class="icon-btn remove" aria-label="Remove link" title="Remove">&times;</button>
+    </li>
+  </template>
+
+  <script src="vendor/qrcode.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

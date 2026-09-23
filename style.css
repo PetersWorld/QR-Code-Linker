@@ -1,0 +1,161 @@
+:root {
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --text: #1c1f24;
+  --muted: #5f6672;
+  --border: #d9dde3;
+  --accent: #2f5bea;
+  --accent-text: #ffffff;
+  --error: #b42318;
+  --warning-bg: #fff7e0;
+  --warning-text: #7a5200;
+  --radius: 10px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14161a;
+    --surface: #1d2026;
+    --text: #e8eaee;
+    --muted: #9aa1ad;
+    --border: #343944;
+    --accent: #6b8cff;
+    --accent-text: #0d1020;
+    --error: #ff8a80;
+    --warning-bg: #3a2f10;
+    --warning-text: #ffd978;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 16px 48px;
+}
+.container.narrow { max-width: 480px; }
+
+h1 { margin: 0 0 4px; font-size: 1.75rem; }
+h2 { margin: 0; font-size: 1.1rem; }
+.subtitle { margin: 0 0 24px; color: var(--muted); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.field { display: grid; gap: 6px; margin-bottom: 20px; }
+.field span { font-weight: 600; font-size: 0.9rem; }
+
+input[type="text"], input[type="url"] {
+  width: 100%;
+  padding: 10px 12px;
+  font: inherit;
+  color: inherit;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+input:focus-visible, button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+input.invalid { border-color: var(--error); }
+
+.links-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.links { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.link-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) auto;
+  gap: 8px;
+}
+@media (max-width: 560px) {
+  .link-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .link-row .label { grid-column: 1 / -1; }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--accent-text);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn.secondary { color: var(--accent); background: transparent; }
+.icon-btn {
+  width: 42px;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.icon-btn:hover { color: var(--error); border-color: var(--error); }
+
+.mode { border: 0; padding: 0; margin: 20px 0 0; display: grid; gap: 6px; }
+.mode legend { font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; }
+.mode small { color: var(--muted); }
+
+.error { color: var(--error); margin: 16px 0 0; }
+.warning {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.result { text-align: center; }
+.qr {
+  display: inline-block;
+  padding: 12px;
+  background: #fff; /* QR codes need a light background to scan reliably */
+  border-radius: 8px;
+}
+.qr svg { display: block; width: min(280px, 70vw); height: auto; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+.meta { color: var(--muted); font-size: 0.85rem; margin: 12px 0 0; }
+
+.landing-links { list-style: none; padding: 0; margin: 24px 0; display: grid; gap: 12px; }
+.landing-links a {
+  display: block;
+  padding: 14px 16px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-wrap: anywhere;
+}
+.landing-links a:hover { border-color: var(--accent); color: var(--accent); }
+#landing header { text-align: center; }
+.footer { text-align: center; color: var(--muted); font-size: 0.9rem; }
+.footer a { color: var(--accent); }
