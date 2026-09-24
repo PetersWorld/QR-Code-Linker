@@ -157,5 +157,3 @@ input.invalid { border-color: var(--error); }
 }
 .landing-links a:hover { border-color: var(--accent); color: var(--accent); }
 #landing header { text-align: center; }
-.footer { text-align: center; color: var(--muted); font-size: 0.9rem; }
-.footer a { color: var(--accent); }
