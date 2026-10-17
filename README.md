@@ -8,10 +8,14 @@ Add your links, and the app creates a QR code. When someone scans it, they get a
 
 - A QR code can only hold one piece of data, so the app puts all your links into the URL of its own page (`index.html#d=...`, Base64-encoded JSON).
 - When that URL is opened, the app sees the data in the URL hash and shows the list of links instead of the editor.
-- There is no server, database or account. The links live only in the QR code and its URL.
+- There is no server or database. The links live only in the QR code and its URL. Pages opened from a scanned QR code are public and need no account.
 - There is also a **plain text** option that puts the links straight into the QR code as text. It needs no hosting, but some phone scanners won't make the links tappable.
 
 Features: page title, up to 20 links with optional labels, live preview, PNG/SVG download, copy link, and support for `http(s)`, `mailto:`, `tel:` and `sms:` links. It also has a dark mode and works on mobile.
+
+## Sign in and sign up
+
+The editor sits behind a simple sign in / sign up screen. Because the app has no server, accounts are stored **only in the browser that created them** (in `localStorage`, with salted PBKDF2 password hashes). They don't sync across devices and clearing site data removes them. This keeps casual visitors out of the editor; it is not real security. For shared, cross-device accounts you'd need a backend such as Firebase Auth or Supabase.
 
 ## Run locally
 

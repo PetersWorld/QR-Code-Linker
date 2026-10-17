@@ -1,37 +1,27 @@
 :root {
-  --bg: #f5f6f8;
-  --surface: #ffffff;
-  --text: #1c1f24;
-  --muted: #5f6672;
-  --border: #d9dde3;
-  --accent: #2f5bea;
-  --accent-text: #ffffff;
-  --error: #b42318;
-  --warning-bg: #fff7e0;
-  --warning-text: #7a5200;
+  --bg: #313131;
+  --surface: #1d2026;
+  --text: #e8eaee;
+  --muted: #b0b6c1;
+  --border: #4a4f5a;
+  --accent: #6b8cff;
+  --accent-text: #0d1020;
+  --error: #ff8a80;
+  --warning-bg: #3a2f10;
+  --warning-text: #ffd978;
   --radius: 10px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14161a;
-    --surface: #1d2026;
-    --text: #e8eaee;
-    --muted: #9aa1ad;
-    --border: #343944;
-    --accent: #6b8cff;
-    --accent-text: #0d1020;
-    --error: #ff8a80;
-    --warning-bg: #3a2f10;
-    --warning-text: #ffd978;
-  }
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: #313131;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.171) 2px, transparent 0);
+  background-size: 30px 30px;
+  background-position: -5px -5px;
+  min-height: 100vh;
   color: var(--text);
   font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
@@ -58,7 +48,7 @@ h2 { margin: 0; font-size: 1.1rem; }
 .field { display: grid; gap: 6px; margin-bottom: 20px; }
 .field span { font-weight: 600; font-size: 0.9rem; }
 
-input[type="text"], input[type="url"] {
+input[type="text"], input[type="url"], input[type="email"], input[type="password"] {
   width: 100%;
   padding: 10px 12px;
   font: inherit;
@@ -157,3 +147,23 @@ input.invalid { border-color: var(--error); }
 }
 .landing-links a:hover { border-color: var(--accent); color: var(--accent); }
 #landing header { text-align: center; }
+
+/* Sign in / sign up */
+.auth-card { padding: 24px; }
+.auth-brand { text-align: center; margin-bottom: 20px; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; margin-bottom: 20px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; }
+.tab { padding: 9px 12px; font: inherit; font-weight: 600; color: var(--muted); background: transparent; border: 0; border-radius: 7px; cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--text); background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.auth-form .field { margin-bottom: 16px; }
+.auth-form .btn { width: 100%; }
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 64px; }
+.pw-toggle { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); padding: 4px 8px; font: inherit; font-size: .8rem; font-weight: 600; color: var(--accent); background: transparent; border: 0; border-radius: 6px; cursor: pointer; }
+.hint { color: var(--muted); font-size: .8rem; font-weight: 400; }
+.auth-note { margin: 16px 0 0; color: var(--muted); font-size: .8rem; text-align: center; }
+.auth-form .error { margin: 0 0 16px; }
+.btn[disabled] { opacity: .6; cursor: progress; }
+.userbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 20px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.userbar .who { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .9rem; }
+.userbar .who strong { color: var(--text); }
+.userbar .btn { padding: 6px 12px; font-size: .9rem; }
