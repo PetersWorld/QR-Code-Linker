@@ -8,8 +8,58 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Builder: shown when there are no links in the URL -->
+  <!-- Auth: shown when signed out -->
+  <main id="auth" class="container narrow" hidden>
+    <header class="auth-brand">
+      <h1>QR Code Linker</h1>
+      <p class="subtitle">Sign in to build your link QR codes.</p>
+    </header>
+    <section class="card auth-card">
+      <div class="tabs" role="tablist" aria-label="Account">
+        <button type="button" class="tab" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true">Sign in</button>
+        <button type="button" class="tab" role="tab" id="tab-signup" aria-controls="form-signup" aria-selected="false" tabindex="-1">Sign up</button>
+      </div>
+
+      <form id="form-signin" class="auth-form" role="tabpanel" aria-labelledby="tab-signin" novalidate>
+        <p class="error" role="alert" hidden></p>
+        <label class="field"><span>Email</span>
+          <input type="email" name="email" autocomplete="email" inputmode="email" required>
+        </label>
+        <label class="field"><span>Password</span>
+          <span class="pw-wrap"><input type="password" name="password" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false">Show</button></span>
+        </label>
+        <button type="submit" class="btn">Sign in</button>
+      </form>
+
+      <form id="form-signup" class="auth-form" role="tabpanel" aria-labelledby="tab-signup" novalidate hidden>
+        <p class="error" role="alert" hidden></p>
+        <label class="field"><span>Name</span>
+          <input type="text" name="name" autocomplete="name" maxlength="60" required>
+        </label>
+        <label class="field"><span>Email</span>
+          <input type="email" name="email" autocomplete="email" inputmode="email" required>
+        </label>
+        <label class="field"><span>Password <span class="hint">(at least 8 characters)</span></span>
+          <span class="pw-wrap"><input type="password" name="password" autocomplete="new-password" minlength="8" required>
+          <button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false">Show</button></span>
+        </label>
+        <label class="field"><span>Confirm password</span>
+          <input type="password" name="confirm" autocomplete="new-password" required>
+        </label>
+        <button type="submit" class="btn">Create account</button>
+      </form>
+
+      <p class="auth-note">Accounts are stored only in this browser. Pages opened from a scanned QR code never need an account.</p>
+    </section>
+  </main>
+
+  <!-- Builder: shown when signed in -->
   <main id="builder" class="container" hidden>
+    <div class="userbar">
+      <span class="who">Signed in as <strong id="user-name"></strong></span>
+      <button id="sign-out" type="button" class="btn secondary">Sign out</button>
+    </div>
     <header>
       <h1>QR Code Linker</h1>
       <p class="subtitle">Combine several links into one QR code. Scanning it opens a page listing all of them.</p>

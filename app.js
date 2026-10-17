@@ -72,6 +72,175 @@
     return location.href.split('#')[0].split('?')[0];
   }
 
+  // ---- Accounts (client-side only: this app has no server) ----
+
+  var USERS_KEY = 'qrl.users';
+  var SESSION_KEY = 'qrl.session';
+  var memoryStore = {};
+
+  function storeGet(key) {
+    try { var v = localStorage.getItem(key); if (v !== null) return v; } catch (e) { /* blocked */ }
+    return memoryStore.hasOwnProperty(key) ? memoryStore[key] : null;
+  }
+  function storeSet(key, value) {
+    memoryStore[key] = value;
+    try { localStorage.setItem(key, value); } catch (e) { /* blocked: memory only */ }
+  }
+  function storeRemove(key) {
+    delete memoryStore[key];
+    try { localStorage.removeItem(key); } catch (e) { /* blocked */ }
+  }
+
+  function loadUsers() {
+    try { var u = JSON.parse(storeGet(USERS_KEY) || '{}'); return u && typeof u === 'object' ? u : {}; }
+    catch (e) { return {}; }
+  }
+  function getSession() {
+    try {
+      var s = JSON.parse(storeGet(SESSION_KEY) || 'null');
+      if (s && typeof s.email === 'string' && loadUsers()[s.email]) return s;
+    } catch (e) { /* ignore */ }
+    return null;
+  }
+
+  function bytesToB64(buf) {
+    var bin = '';
+    new Uint8Array(buf).forEach(function (b) { bin += String.fromCharCode(b); });
+    return btoa(bin);
+  }
+
+  // PBKDF2-SHA256 with a per-account random salt.
+  function hashPassword(password, saltB64) {
+    if (!window.crypto || !crypto.subtle) return Promise.reject(new Error('unsupported'));
+    var salt = saltB64
+      ? Uint8Array.from(atob(saltB64), function (c) { return c.charCodeAt(0); })
+      : crypto.getRandomValues(new Uint8Array(16));
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits'])
+      .then(function (key) {
+        return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: salt, iterations: 150000, hash: 'SHA-256' }, key, 256);
+      })
+      .then(function (bits) { return { salt: bytesToB64(salt), hash: bytesToB64(bits) }; });
+  }
+
+  function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+
+  function authError(form, msg) {
+    var el = form.querySelector('.error');
+    el.textContent = msg || '';
+    el.hidden = !msg;
+  }
+  function setBusy(form, busy) {
+    var btn = form.querySelector('button[type="submit"]');
+    btn.disabled = busy;
+  }
+
+  function signUp(form) {
+    var name = form.name.value.trim();
+    var email = form.email.value.trim().toLowerCase();
+    var pw = form.password.value;
+    if (!name) return authError(form, 'Enter your name.');
+    if (!isEmail(email)) return authError(form, 'Enter a valid email address.');
+    if (pw.length < 8) return authError(form, 'Password must be at least 8 characters.');
+    if (pw !== form.confirm.value) return authError(form, 'Passwords do not match.');
+    var users = loadUsers();
+    if (users[email]) return authError(form, 'An account with this email already exists. Try signing in.');
+    authError(form, '');
+    setBusy(form, true);
+    hashPassword(pw).then(function (h) {
+      users = loadUsers();
+      users[email] = { name: name, salt: h.salt, hash: h.hash, created: Date.now() };
+      storeSet(USERS_KEY, JSON.stringify(users));
+      storeSet(SESSION_KEY, JSON.stringify({ email: email }));
+      form.reset();
+      enterApp();
+    }, function () {
+      authError(form, 'This browser cannot create accounts here (secure context required).');
+    }).then(function () { setBusy(form, false); });
+  }
+
+  function signIn(form) {
+    var email = form.email.value.trim().toLowerCase();
+    var pw = form.password.value;
+    if (!email || !pw) return authError(form, 'Enter your email and password.');
+    authError(form, '');
+    setBusy(form, true);
+    var user = loadUsers()[email];
+    // Hash even for unknown emails so timing doesn't reveal which accounts exist.
+    hashPassword(pw, user ? user.salt : null).then(function (h) {
+      if (!user || h.hash !== user.hash) return authError(form, 'Incorrect email or password.');
+      storeSet(SESSION_KEY, JSON.stringify({ email: email }));
+      form.reset();
+      enterApp();
+    }, function () {
+      authError(form, 'This browser cannot sign in here (secure context required).');
+    }).then(function () { setBusy(form, false); });
+  }
+
+  function selectTab(which) {
+    var signin = which === 'signin';
+    [['signin', signin], ['signup', !signin]].forEach(function (p) {
+      var tab = document.getElementById('tab-' + p[0]);
+      tab.setAttribute('aria-selected', String(p[1]));
+      tab.tabIndex = p[1] ? 0 : -1;
+      document.getElementById('form-' + p[0]).hidden = !p[1];
+    });
+  }
+
+  var authReady = false;
+  function initAuth() {
+    if (authReady) return;
+    authReady = true;
+    ['signin', 'signup'].forEach(function (name, i) {
+      var tab = document.getElementById('tab-' + name);
+      tab.addEventListener('click', function () { selectTab(name); });
+      tab.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          var other = i === 0 ? 'signup' : 'signin';
+          selectTab(other);
+          document.getElementById('tab-' + other).focus();
+        }
+      });
+    });
+    document.getElementById('form-signin').addEventListener('submit', function (e) { e.preventDefault(); signIn(e.target); });
+    document.getElementById('form-signup').addEventListener('submit', function (e) { e.preventDefault(); signUp(e.target); });
+    Array.prototype.forEach.call(document.querySelectorAll('.pw-toggle'), function (btn) {
+      btn.addEventListener('click', function () {
+        var input = btn.parentNode.querySelector('input');
+        var show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.textContent = show ? 'Hide' : 'Show';
+        btn.setAttribute('aria-pressed', String(show));
+        btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+      });
+    });
+    document.getElementById('sign-out').addEventListener('click', function () {
+      storeRemove(SESSION_KEY);
+      showAuth();
+    });
+  }
+
+  function showAuth() {
+    initAuth();
+    document.getElementById('builder').hidden = true;
+    document.getElementById('landing').hidden = true;
+    document.getElementById('auth').hidden = false;
+    document.title = 'Sign in · QR Code Linker';
+    selectTab('signin');
+    window.scrollTo(0, 0);
+  }
+
+  // Shows the editor when signed in, otherwise the sign in / sign up screen.
+  function enterApp() {
+    initAuth();
+    var session = getSession();
+    if (!session) return showAuth();
+    document.getElementById('auth').hidden = true;
+    document.getElementById('user-name').textContent = loadUsers()[session.email].name || session.email;
+    showBuilder();
+    document.title = 'QR Code Linker';
+    window.scrollTo(0, 0);
+  }
+
   // ---- Landing view ----
 
   function showLanding(data) {
@@ -90,6 +259,7 @@
       list.appendChild(li);
     });
     document.getElementById('builder').hidden = true;
+    document.getElementById('auth').hidden = true;
     document.getElementById('landing').hidden = false;
   }
 
@@ -249,6 +419,11 @@
   }
 
   function showBuilder() {
+    if (els.links) {
+      document.getElementById('landing').hidden = true;
+      document.getElementById('builder').hidden = false;
+      return;
+    }
     ['title', 'links', 'error', 'result', 'qr', 'meta'].forEach(function (id) {
       els[id] = document.getElementById(id);
     });
@@ -283,7 +458,7 @@
         if (data.links.length) return showLanding(data);
       } catch (e) { /* fall through to the builder */ }
     }
-    if (!els.links) showBuilder();
+    enterApp();
   }
 
   window.addEventListener('hashchange', function () { location.reload(); });
