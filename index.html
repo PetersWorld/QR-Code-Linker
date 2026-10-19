@@ -5,15 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QR Code Linker</title>
   <meta name="description" content="Combine multiple links into a single QR code.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <!-- Auth: shown when signed out -->
-  <main id="auth" class="container narrow" hidden>
-    <header class="auth-brand">
-      <h1>QR Code Linker</h1>
-      <p class="subtitle">Sign in to build your link QR codes.</p>
-    </header>
+  <main id="auth" class="auth-page" hidden>
+    <div class="auth-pitch">
+      <div class="brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3" fill="currentColor"/><rect x="18" y="2" width="12" height="12" rx="3" fill="currentColor"/><rect x="2" y="18" width="12" height="12" rx="3" fill="currentColor"/><rect x="20" y="20" width="4" height="4" fill="currentColor"/><rect x="26" y="26" width="4" height="4" fill="currentColor"/></svg>
+        <span>QR Code Linker</span>
+      </div>
+
+      <div id="pitch-signin" class="pitch">
+        <h1>One code for every link.</h1>
+        <p>Combine your portfolio, socials and contact details into a single QR code. Scanning it opens a clean page with all of them.</p>
+        <div class="pills" aria-hidden="true">
+          <span class="pill pill-a">Portfolio</span>
+          <span class="pill pill-b">GitHub</span>
+          <span class="pill pill-c">Email me</span>
+        </div>
+      </div>
+
+      <div id="pitch-signup" class="pitch" hidden>
+        <h1>Your first code in a minute.</h1>
+        <ol class="steps">
+          <li><span class="num">1</span><span class="step-text">Add the links you want to share</span></li>
+          <li><span class="num">2</span><span class="step-text">Preview the page people will see</span></li>
+          <li><span class="num">3</span><span class="step-text">Print or share the QR code</span></li>
+        </ol>
+      </div>
+    </div>
+
     <section class="card auth-card">
       <div class="tabs" role="tablist" aria-label="Account">
         <button type="button" class="tab" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true">Sign in</button>
@@ -21,31 +46,45 @@
       </div>
 
       <form id="form-signin" class="auth-form" role="tabpanel" aria-labelledby="tab-signin" novalidate>
+        <div class="form-head">
+          <h2>Welcome back</h2>
+          <p>Sign in to build your link QR codes.</p>
+        </div>
         <p class="error" role="alert" hidden></p>
         <label class="field"><span>Email</span>
-          <input type="email" name="email" autocomplete="email" inputmode="email" required>
+          <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
         </label>
         <label class="field"><span>Password</span>
-          <span class="pw-wrap"><input type="password" name="password" autocomplete="current-password" required>
-          <button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false">Show</button></span>
+          <span class="pw-wrap"><input type="password" name="password" autocomplete="current-password" placeholder="Your password" required>
+          <button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false">
+            <svg class="eye-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>
+          </button></span>
         </label>
         <button type="submit" class="btn">Sign in</button>
       </form>
 
       <form id="form-signup" class="auth-form" role="tabpanel" aria-labelledby="tab-signup" novalidate hidden>
+        <div class="form-head">
+          <h2>Create your account</h2>
+          <p>It only takes a few seconds.</p>
+        </div>
         <p class="error" role="alert" hidden></p>
         <label class="field"><span>Name</span>
-          <input type="text" name="name" autocomplete="name" maxlength="60" required>
+          <input type="text" name="name" autocomplete="name" maxlength="60" placeholder="Joshua" required>
         </label>
         <label class="field"><span>Email</span>
-          <input type="email" name="email" autocomplete="email" inputmode="email" required>
+          <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
         </label>
         <label class="field"><span>Password <span class="hint">(at least 8 characters)</span></span>
-          <span class="pw-wrap"><input type="password" name="password" autocomplete="new-password" minlength="8" required>
-          <button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false">Show</button></span>
+          <span class="pw-wrap"><input type="password" name="password" autocomplete="new-password" minlength="8" placeholder="Create a password" required>
+          <button type="button" class="pw-toggle" aria-label="Show password" aria-pressed="false">
+            <svg class="eye-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <svg class="eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>
+          </button></span>
         </label>
         <label class="field"><span>Confirm password</span>
-          <input type="password" name="confirm" autocomplete="new-password" required>
+          <input type="password" name="confirm" autocomplete="new-password" placeholder="Repeat your password" required>
         </label>
         <button type="submit" class="btn">Create account</button>
       </form>
@@ -55,59 +94,83 @@
   </main>
 
   <!-- Builder: shown when signed in -->
-  <main id="builder" class="container" hidden>
-    <div class="userbar">
-      <span class="who">Signed in as <strong id="user-name"></strong></span>
-      <button id="sign-out" type="button" class="btn secondary">Sign out</button>
-    </div>
-    <header>
-      <h1>QR Code Linker</h1>
-      <p class="subtitle">Combine several links into one QR code. Scanning it opens a page listing all of them.</p>
+  <main id="builder" class="app" hidden>
+    <header class="app-header">
+      <div class="brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3" fill="currentColor"/><rect x="18" y="2" width="12" height="12" rx="3" fill="currentColor"/><rect x="2" y="18" width="12" height="12" rx="3" fill="currentColor"/><rect x="20" y="20" width="4" height="4" fill="currentColor"/><rect x="26" y="26" width="4" height="4" fill="currentColor"/></svg>
+        <span>QR Code Linker</span>
+      </div>
+      <div class="userbar">
+        <span class="who">Signed in as <strong id="user-name"></strong></span>
+        <button id="sign-out" type="button" class="pill-btn">Sign out</button>
+      </div>
     </header>
 
-    <section class="card">
-      <label class="field">
-        <span>Page title</span>
-        <input id="title" type="text" maxlength="80" placeholder="e.g. My links">
-      </label>
+    <div class="intro">
+      <h1>Build your link page</h1>
+      <p class="subtitle">Combine several links into one QR code. Scanning it opens a page listing all of them.</p>
+    </div>
 
-      <div class="links-header">
-        <h2>Links</h2>
-        <button id="add-link" type="button" class="btn secondary">+ Add link</button>
-      </div>
-      <ol id="links" class="links"></ol>
+    <div class="editor-grid">
+      <section class="card form-card">
+        <label class="field">
+          <span>Page title</span>
+          <input id="title" type="text" maxlength="80" placeholder="e.g. My links">
+        </label>
 
-      <fieldset class="mode">
-        <legend>QR code contains</legend>
-        <label><input type="radio" name="mode" value="page" checked> A link to a page listing every link <small>(recommended)</small></label>
-        <label><input type="radio" name="mode" value="text"> The links as plain text <small>(works offline, links are not always tappable)</small></label>
-      </fieldset>
+        <div class="links-block">
+          <div class="links-header">
+            <h2>Links</h2>
+            <button id="add-link" type="button" class="btn secondary small">+ Add link</button>
+          </div>
+          <ol id="links" class="links"></ol>
+        </div>
 
-      <p id="error" class="error" role="alert" hidden></p>
-    </section>
+        <fieldset class="mode">
+          <legend>QR code contains</legend>
+          <label class="option">
+            <input type="radio" name="mode" value="page" checked>
+            <span><strong>A link to a page listing every link</strong><small>Recommended. Opens a tidy, tappable page.</small></span>
+          </label>
+          <label class="option">
+            <input type="radio" name="mode" value="text">
+            <span><strong>The links as plain text</strong><small>Works offline, but links are not always tappable.</small></span>
+          </label>
+        </fieldset>
 
-    <section id="result" class="card result" hidden>
-      <div id="qr" class="qr" aria-label="Generated QR code"></div>
-      <p id="file-warning" class="warning" hidden>
-        You opened this app from a local file, so phones can't reach the link inside the QR code.
-        Host it (e.g. on GitHub Pages) or use the "plain text" option.
-      </p>
-      <div class="actions">
-        <button id="download-png" type="button" class="btn">Download PNG</button>
-        <button id="download-svg" type="button" class="btn secondary">Download SVG</button>
-        <button id="copy-link" type="button" class="btn secondary">Copy link</button>
-        <a id="open-link" class="btn secondary" target="_blank" rel="noopener">Preview page</a>
-      </div>
-      <p class="meta" id="meta"></p>
-    </section>
+        <p id="error" class="error" role="alert" hidden></p>
+      </section>
+
+      <aside id="result" class="card result" hidden>
+        <h2>Your QR code</h2>
+        <div id="qr" class="qr" aria-label="Generated QR code"></div>
+        <p id="file-warning" class="warning" hidden>
+          You opened this app from a local file, so phones can't reach the link inside the QR code.
+          Host it (e.g. on GitHub Pages) or use the "plain text" option.
+        </p>
+        <p class="meta" id="meta"></p>
+        <div class="actions">
+          <a id="open-link" class="btn" target="_blank" rel="noopener">Preview scanned page</a>
+          <button id="copy-link" type="button" class="btn secondary">Copy link</button>
+          <button id="download-png" type="button" class="btn secondary">Download PNG</button>
+          <button id="download-svg" type="button" class="btn secondary">Download SVG</button>
+        </div>
+      </aside>
+    </div>
   </main>
 
   <!-- Landing: shown when a QR code is scanned -->
-  <main id="landing" class="container narrow" hidden>
+  <main id="landing" class="landing" hidden>
     <header>
+      <div id="landing-avatar" class="avatar" aria-hidden="true"></div>
       <h1 id="landing-title"></h1>
+      <p class="subtitle">Tap a link to open it</p>
     </header>
     <ul id="landing-links" class="landing-links"></ul>
+    <footer class="made-with">
+      <svg width="16" height="16" viewBox="0 0 32 32" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3" fill="currentColor"/><rect x="18" y="2" width="12" height="12" rx="3" fill="currentColor"/><rect x="2" y="18" width="12" height="12" rx="3" fill="currentColor"/><rect x="20" y="20" width="4" height="4" fill="currentColor"/><rect x="26" y="26" width="4" height="4" fill="currentColor"/></svg>
+      Made with QR Code Linker
+    </footer>
   </main>
 
   <template id="link-row">
