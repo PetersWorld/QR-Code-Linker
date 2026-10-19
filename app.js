@@ -183,7 +183,39 @@
       tab.setAttribute('aria-selected', String(p[1]));
       tab.tabIndex = p[1] ? 0 : -1;
       document.getElementById('form-' + p[0]).hidden = !p[1];
+      document.getElementById('pitch-' + p[0]).hidden = !p[1];
     });
+    if (!signin) animateSteps();
+  }
+
+  // Slide-left-in, character by character, for the sign up steps.
+  var stepsSplit = false;
+  function animateSteps() {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var n = 0;
+    Array.prototype.forEach.call(document.querySelectorAll('#pitch-signup .step-text'), function (el) {
+      if (!stepsSplit) {
+        var text = el.textContent;
+        el.setAttribute('aria-label', text);
+        el.textContent = '';
+        text.split('').forEach(function (c) {
+          var sp = document.createElement('span');
+          sp.className = 'ch';
+          sp.setAttribute('aria-hidden', 'true');
+          sp.textContent = c === ' ' ? '\u00a0' : c;
+          el.appendChild(sp);
+        });
+      }
+      if (reduce) return;
+      Array.prototype.forEach.call(el.children, function (sp, i) {
+        sp.style.animation = 'none';
+        void sp.offsetWidth;
+        sp.style.animation = '';
+        sp.style.animationDelay = ((n + i) * 0.03) + 's';
+      });
+      n += el.children.length;
+    });
+    stepsSplit = true;
   }
 
   var authReady = false;
@@ -208,7 +240,7 @@
         var input = btn.parentNode.querySelector('input');
         var show = input.type === 'password';
         input.type = show ? 'text' : 'password';
-        btn.textContent = show ? 'Hide' : 'Show';
+        btn.classList.toggle('shown', show);
         btn.setAttribute('aria-pressed', String(show));
         btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
       });
@@ -249,12 +281,28 @@
     document.getElementById('landing-title').textContent = title;
     var list = document.getElementById('landing-links');
     list.textContent = '';
+    var avatar = document.getElementById('landing-avatar');
+    if (avatar) avatar.textContent = (title.trim().charAt(0) || 'Q').toUpperCase();
     data.links.forEach(function (link) {
       var li = document.createElement('li');
       var a = document.createElement('a');
       a.href = link.url;
       a.rel = 'noopener noreferrer';
-      a.textContent = displayLabel(link);
+      var text = document.createElement('span');
+      text.className = 'link-text';
+      var name = document.createElement('span');
+      name.className = 'link-name';
+      name.textContent = displayLabel(link);
+      var sub = document.createElement('span');
+      sub.className = 'link-sub';
+      sub.textContent = link.url.replace(/^(https?:\/\/|mailto:)/i, '').replace(/\/$/, '');
+      text.appendChild(name);
+      text.appendChild(sub);
+      var badge = document.createElement('span');
+      badge.className = 'arrow';
+      badge.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg>';
+      a.appendChild(text);
+      a.appendChild(badge);
       li.appendChild(a);
       list.appendChild(li);
     });
