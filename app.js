@@ -218,6 +218,35 @@
     stepsSplit = true;
   }
 
+  // ---- Theme (bright / dark) ----
+
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  }
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    var light = theme === 'light';
+    Array.prototype.forEach.call(document.querySelectorAll('.theme-toggle'), function (b) {
+      b.setAttribute('aria-pressed', String(light));
+      var label = light ? 'Switch to dark mode' : 'Switch to light mode';
+      b.setAttribute('aria-label', label);
+      b.title = label;
+    });
+  }
+  var themeReady = false;
+  function initTheme() {
+    if (themeReady) return;
+    themeReady = true;
+    applyTheme(currentTheme());
+    Array.prototype.forEach.call(document.querySelectorAll('.theme-toggle'), function (b) {
+      b.addEventListener('click', function () {
+        var next = currentTheme() === 'light' ? 'dark' : 'light';
+        applyTheme(next);
+        storeSet('qrl.theme', next);
+      });
+    });
+  }
+
   var authReady = false;
   function initAuth() {
     if (authReady) return;
@@ -245,6 +274,7 @@
         btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
       });
     });
+    initTheme();
     document.getElementById('sign-out').addEventListener('click', function () {
       storeRemove(SESSION_KEY);
       showAuth();
@@ -276,6 +306,7 @@
   // ---- Landing view ----
 
   function showLanding(data) {
+    initTheme();
     var title = data.title || 'Links';
     document.title = title;
     document.getElementById('landing-title').textContent = title;
