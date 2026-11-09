@@ -124,10 +124,16 @@
 
   function isEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
 
-  function authError(form, msg) {
+  // Shows an error above the form and flags (and focuses) the field it is about.
+  function authError(form, msg, field) {
     var el = form.querySelector('.error');
     el.textContent = msg || '';
     el.hidden = !msg;
+    Array.prototype.forEach.call(form.querySelectorAll('input'), function (i) { i.removeAttribute('aria-invalid'); });
+    if (msg && field && form.elements[field]) {
+      form.elements[field].setAttribute('aria-invalid', 'true');
+      form.elements[field].focus();
+    }
   }
   function setBusy(form, busy) {
     var btn = form.querySelector('button[type="submit"]');
@@ -138,12 +144,12 @@
     var name = form.name.value.trim();
     var email = form.email.value.trim().toLowerCase();
     var pw = form.password.value;
-    if (!name) return authError(form, 'Enter your name.');
-    if (!isEmail(email)) return authError(form, 'Enter a valid email address.');
-    if (pw.length < 8) return authError(form, 'Password must be at least 8 characters.');
-    if (pw !== form.confirm.value) return authError(form, 'Passwords do not match.');
+    if (!name) return authError(form, 'Enter your name.', 'name');
+    if (!isEmail(email)) return authError(form, 'Enter a valid email address.', 'email');
+    if (pw.length < 8) return authError(form, 'Password must be at least 8 characters.', 'password');
+    if (pw !== form.confirm.value) return authError(form, 'Passwords do not match.', 'confirm');
     var users = loadUsers();
-    if (users[email]) return authError(form, 'An account with this email already exists. Try signing in.');
+    if (users[email]) return authError(form, 'An account with this email already exists. Try signing in.', 'email');
     authError(form, '');
     setBusy(form, true);
     hashPassword(pw).then(function (h) {
@@ -161,13 +167,13 @@
   function signIn(form) {
     var email = form.email.value.trim().toLowerCase();
     var pw = form.password.value;
-    if (!email || !pw) return authError(form, 'Enter your email and password.');
+    if (!email || !pw) return authError(form, 'Enter your email and password.', form.email.value.trim() ? 'password' : 'email');
     authError(form, '');
     setBusy(form, true);
     var user = loadUsers()[email];
     // Hash even for unknown emails so timing doesn't reveal which accounts exist.
     hashPassword(pw, user ? user.salt : null).then(function (h) {
-      if (!user || h.hash !== user.hash) return authError(form, 'Incorrect email or password.');
+      if (!user || h.hash !== user.hash) return authError(form, 'Incorrect email or password.', 'password');
       storeSet(SESSION_KEY, JSON.stringify({ email: email }));
       form.reset();
       enterApp();
@@ -225,6 +231,8 @@
   }
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    var tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.setAttribute('content', theme === 'light' ? '#f4f6f8' : '#000000');
     var light = theme === 'light';
     Array.prototype.forEach.call(document.querySelectorAll('.theme-toggle'), function (b) {
       b.setAttribute('aria-pressed', String(light));

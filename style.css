@@ -263,3 +263,71 @@ input.invalid { border-color: var(--error); }
 :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
 :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .theme-toggle.floating { position: fixed; top: 16px; right: 16px; width: 40px; height: 40px; z-index: 5; }
+
+/* ---- Polish: motion tokens, 44px targets, hover/press, entrance ---- */
+:root {
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 0.18s;
+  --dur-base: 0.35s;
+  --dur-enter: 0.8s;
+}
+
+/* Touch targets: at least 44px */
+.pw-toggle { width: 44px; height: 44px; top: 2px; right: 2px; }
+.pw-wrap input { padding-right: 56px; }
+.theme-toggle { min-width: 44px; min-height: 44px; }
+.pill-btn { min-height: 44px; }
+.btn.small { min-height: 44px; }
+.icon-btn { width: 48px; height: 48px; }
+.tab { min-height: 44px; }
+
+/* Hover and press: step on hover, press on click, no layout shift */
+.btn, .pill-btn, .icon-btn, .tab, .theme-toggle, .option, .landing-links a, input {
+  transition: transform var(--dur-fast) var(--ease-out), border-color var(--dur-fast), background-color var(--dur-fast), color var(--dur-fast), box-shadow var(--dur-fast), filter var(--dur-fast);
+}
+.btn:hover:not(:disabled), .pill-btn:hover, .theme-toggle:hover { transform: translateY(-1px); }
+.btn:active:not(:disabled), .pill-btn:active, .icon-btn:active, .theme-toggle:active, .tab:active { transform: scale(0.97); }
+.option:hover { border-color: var(--accent-fg); }
+input:focus { border-color: var(--accent-fg); }
+input[aria-invalid="true"] { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
+
+/* Link cards lift, the arrow badge nudges */
+.landing-links a:hover { transform: translateY(-2px); }
+.landing-links a:active { transform: translateY(0) scale(0.99); }
+.landing-links .arrow svg { transition: transform var(--dur-base) var(--ease-out); }
+.landing-links a:hover .arrow svg { transform: translate(2px, -2px); }
+
+/* One entrance per screen, staggered in reading order */
+@keyframes rise-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.auth-page:not([hidden]) .brand,
+.auth-page:not([hidden]) .pitch:not([hidden]) h1,
+.auth-page:not([hidden]) .pitch:not([hidden]) > p,
+.auth-page:not([hidden]) .pills,
+.auth-page:not([hidden]) .auth-card,
+.app:not([hidden]) .intro,
+.app:not([hidden]) .form-card,
+.app:not([hidden]) .result,
+.landing:not([hidden]) header,
+.landing:not([hidden]) .landing-links li,
+.landing:not([hidden]) .made-with {
+  animation: rise-in var(--dur-enter) var(--ease-out) both;
+}
+.auth-page:not([hidden]) .pitch:not([hidden]) h1 { animation-delay: 0.08s; }
+.auth-page:not([hidden]) .pitch:not([hidden]) > p { animation-delay: 0.16s; }
+.auth-page:not([hidden]) .pills { animation-delay: 0.24s; }
+.auth-page:not([hidden]) .auth-card { animation-delay: 0.12s; }
+.app:not([hidden]) .form-card { animation-delay: 0.1s; }
+.app:not([hidden]) .result { animation-delay: 0.18s; }
+.landing:not([hidden]) .landing-links li:nth-child(1) { animation-delay: 0.1s; }
+.landing:not([hidden]) .landing-links li:nth-child(2) { animation-delay: 0.17s; }
+.landing:not([hidden]) .landing-links li:nth-child(3) { animation-delay: 0.24s; }
+.landing:not([hidden]) .landing-links li:nth-child(n+4) { animation-delay: 0.3s; }
+.landing:not([hidden]) .made-with { animation-delay: 0.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .btn:hover, .pill-btn:hover, .theme-toggle:hover, .landing-links a:hover { transform: none; }
+}
+@media (max-width: 520px) {
+  .userbar { width: 100%; justify-content: space-between; }
+}
