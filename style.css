@@ -24,6 +24,8 @@
   --error: #ff8a80;
   --warning-bg: rgba(26, 26, 26, 0.14);
   --warning-text: var(--ink);
+  --bg-img: url("img/bg-dark.jpg");
+  --footer-text: var(--paper);
 
   --font: "Space Grotesk", system-ui, sans-serif;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -45,6 +47,8 @@
   --subtle: rgba(26, 26, 26, 0.62);
   --link: var(--ink);
   --error: #c62828;
+  --bg-img: url("img/bg-light.jpg");
+  --footer-text: var(--ink);
   color-scheme: light;
 }
 
@@ -54,12 +58,37 @@
 body {
   margin: 0;
   min-height: 100vh;
+  position: relative;
+  isolation: isolate;
   background: var(--bg);
   color: var(--text);
   font: 400 16px/1.5 var(--font);
   transition: background-color 0.2s, color 0.2s;
 }
 button, input { font-family: inherit; }
+
+/* ---- Living background: two slow, counter-drifting layers of the brand gradient ---- */
+.bg { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: var(--bg); }
+.bg i {
+  position: absolute; inset: -14%;
+  background: var(--bg-img) center / cover no-repeat;
+  will-change: transform;
+}
+.bg i:first-child { animation: bg-drift-a 46s ease-in-out infinite alternate; }
+.bg i:last-child {
+  opacity: 0.55; transform: scaleX(-1) scale(1.08);
+  animation: bg-drift-b 62s ease-in-out infinite alternate;
+}
+@keyframes bg-drift-a {
+  0%   { transform: translate3d(-2.5%, 1.5%, 0) scale(1.04) rotate(0deg); }
+  50%  { transform: translate3d(2%, -2%, 0) scale(1.14) rotate(1.5deg); }
+  100% { transform: translate3d(3%, 2.5%, 0) scale(1.08) rotate(-1deg); }
+}
+@keyframes bg-drift-b {
+  0%   { transform: scaleX(-1) translate3d(3%, -2%, 0) scale(1.1) rotate(0deg); }
+  50%  { transform: scaleX(-1) translate3d(-2.5%, 2.5%, 0) scale(1.2) rotate(-1.5deg); }
+  100% { transform: scaleX(-1) translate3d(-3%, -1.5%, 0) scale(1.12) rotate(1deg); }
+}
 h1, h2 { font-family: var(--font); font-weight: 700; margin: 0; letter-spacing: -0.03em; line-height: 1.04; }
 p { margin: 0; }
 input::placeholder { color: var(--subtle); opacity: 0.8; }
@@ -265,7 +294,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="url
 .link-sub { font-size: 13px; color: var(--subtle); overflow-wrap: anywhere; }
 .arrow { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--lime); color: var(--ink); }
 .landing-links a:hover .arrow { background: var(--ink); color: var(--lime); }
-.made-with { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; color: var(--subtle); }
+.made-with { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 500; color: var(--footer-text); }
 .made-with svg { color: var(--link); }
 
 input.invalid, input[aria-invalid="true"] { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
