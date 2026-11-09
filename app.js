@@ -232,7 +232,7 @@
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
     var tc = document.querySelector('meta[name="theme-color"]');
-    if (tc) tc.setAttribute('content', theme === 'light' ? '#f4f6f8' : '#000000');
+    if (tc) tc.setAttribute('content', theme === 'light' ? '#F5F5F5' : '#1A1A1A');
     var light = theme === 'light';
     Array.prototype.forEach.call(document.querySelectorAll('.theme-toggle'), function (b) {
       b.setAttribute('aria-pressed', String(light));
