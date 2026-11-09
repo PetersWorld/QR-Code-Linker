@@ -198,9 +198,9 @@ input[type="text"], input[type="email"], input[type="password"], input[type="url
   color: var(--on-accent); background: var(--lime); border: 2px solid var(--lime); border-radius: 999px;
   animation: pill-bounce 1.6s ease-in-out infinite;
 }
-.pill-a { rotate: -8deg; }
-.pill-b { rotate: 4deg; color: var(--text); background: transparent; border-color: var(--line-strong); animation-delay: 0.2s; }
-.pill-c { rotate: -3deg; animation-delay: 0.4s; }
+.pill-a { rotate: -20deg; }
+.pill-b { rotate: -10deg; color: var(--text); background: transparent; border-color: var(--line-strong); animation-delay: 0.2s; }
+.pill-c { rotate: 20deg; animation-delay: 0.4s; }
 @keyframes pill-bounce { 0%, 100% { translate: 0 0; } 50% { translate: 0 -12px; } }
 
 .steps { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 14px; }
