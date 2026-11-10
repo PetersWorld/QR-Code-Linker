@@ -4,10 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>QR Code Linker</title>
+  <meta name="theme-color" content="#1A1A1A">
   <meta name="description" content="Combine multiple links into a single QR code.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;700&amp;display=swap">
+  <link rel="preload" href="fonts/space-grotesk-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <script>
     (function () {
       var t = null;
@@ -21,6 +20,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="bg" aria-hidden="true"><i></i><i></i></div>
   <!-- Auth: shown when signed out -->
   <main id="auth" class="auth-page" hidden>
     <button type="button" class="theme-toggle floating" aria-label="Switch to light mode" title="Switch to light mode" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
@@ -31,7 +31,7 @@
       </div>
 
       <div id="pitch-signin" class="pitch">
-        <h1>One code for every link.</h1>
+        <h1>One code for <span class="mark">every link.</span></h1>
         <p>Combine your portfolio, socials and contact details into a single QR code. Scanning it opens a clean page with all of them.</p>
         <div class="pills" aria-hidden="true">
           <span class="pill pill-a">Portfolio</span>
@@ -41,7 +41,7 @@
       </div>
 
       <div id="pitch-signup" class="pitch" hidden>
-        <h1>Your first code in a minute.</h1>
+        <h1>Your first code <span class="mark">in a minute.</span></h1>
         <ol class="steps">
           <li><span class="num">1</span><span class="step-text">Add the links you want to share</span></li>
           <li><span class="num">2</span><span class="step-text">Preview the page people will see</span></li>
@@ -123,27 +123,27 @@
     </header>
 
     <div class="intro">
-      <h1>Build your link page</h1>
+      <h1>Build your <span class="mark">link page</span></h1>
       <p class="subtitle">Combine several links into one QR code. Scanning it opens a page listing all of them.</p>
     </div>
 
     <div class="editor-grid">
       <section class="card form-card">
         <label class="field">
-          <span>Page title</span>
+          <span><span class="step-no">01</span>Page title</span>
           <input id="title" type="text" maxlength="80" placeholder="e.g. My links">
         </label>
 
         <div class="links-block">
           <div class="links-header">
-            <h2>Links</h2>
+            <h2><span class="step-no">02</span>Links</h2>
             <button id="add-link" type="button" class="btn secondary small">+ Add link</button>
           </div>
           <ol id="links" class="links"></ol>
         </div>
 
         <fieldset class="mode">
-          <legend>QR code contains</legend>
+          <legend><span class="step-no">03</span>QR code contains</legend>
           <label class="option">
             <input type="radio" name="mode" value="page" checked>
             <span><strong>A link to a page listing every link</strong><small>Recommended. Opens a tidy, tappable page.</small></span>
