@@ -285,17 +285,72 @@
     initTheme();
     document.getElementById('sign-out').addEventListener('click', function () {
       storeRemove(SESSION_KEY);
-      showAuth();
+      if (location.hash === '#home') location.reload(); else location.hash = '#home';
     });
   }
 
-  function showAuth() {
+  // The marketing page shown to signed-out visitors.
+  var homeReady = false;
+  function initHome() {
+    if (homeReady) return;
+    homeReady = true;
+    initTheme();
+    var demo = { title: "Joshua's links", links: [
+      { label: 'Portfolio', url: 'https://example.com/portfolio' },
+      { label: 'GitHub', url: 'https://github.com/example' },
+      { label: 'Email me', url: 'mailto:hello@example.com' },
+      { label: 'WhatsApp', url: 'https://wa.me/0000000000' }
+    ] };
+    var text = appBaseUrl() + '#' + HASH_KEY + encodeData(demo);
+    [['home-qr', 8], ['home-qr-mini', 4]].forEach(function (p) {
+      var el = document.getElementById(p[0]);
+      if (!el) return;
+      try { el.innerHTML = makeQr(text).createSvgTag({ cellSize: p[1], margin: 2, scalable: true }); } catch (e) { /* decorative only */ }
+    });
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-scroll]'), function (a) {
+      a.addEventListener('click', function (e) {
+        var t = document.getElementById(a.getAttribute('data-scroll'));
+        if (!t) return;
+        e.preventDefault();
+        t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-home]'), function (a) {
+      a.addEventListener('click', function (e) {
+        if (!document.getElementById('home').hidden) { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }
+      });
+    });
+    var items = document.querySelectorAll('#home .reveal');
+    if (reduce || !('IntersectionObserver' in window)) {
+      Array.prototype.forEach.call(items, function (n) { n.classList.add('in'); });
+    } else {
+      document.getElementById('home').classList.add('js-reveal');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
+      }, { threshold: 0.15 });
+      Array.prototype.forEach.call(items, function (n) { io.observe(n); });
+    }
+  }
+
+  function showHome() {
+    initHome();
+    document.getElementById('auth').hidden = true;
+    document.getElementById('builder').hidden = true;
+    document.getElementById('landing').hidden = true;
+    document.getElementById('home').hidden = false;
+    document.title = 'QR Code Linker: one QR code for every link';
+    window.scrollTo(0, 0);
+  }
+
+  function showAuth(tab) {
     initAuth();
+    document.getElementById('home').hidden = true;
     document.getElementById('builder').hidden = true;
     document.getElementById('landing').hidden = true;
     document.getElementById('auth').hidden = false;
     document.title = 'Sign in · QR Code Linker';
-    selectTab('signin');
+    selectTab(tab === 'signup' ? 'signup' : 'signin');
     window.scrollTo(0, 0);
   }
 
@@ -545,6 +600,9 @@
         if (data.links.length) return showLanding(data);
       } catch (e) { /* fall through to the builder */ }
     }
+    if (hash === 'signin' || hash === 'signup') return showAuth(hash);
+    if (hash === 'home') return showHome();
+    if (!getSession()) return showHome();
     enterApp();
   }
 
