@@ -411,7 +411,7 @@
   // ---- Builder view ----
 
   var els = {};
-  var current = { svg: '', target: '', filename: 'qr-code' };
+  var current = { svg: '', target: '', filename: 'qr-code', logo: '' };
   var renderTimer = null;
 
   function addRow(label, url) {
@@ -455,11 +455,86 @@
     return appBaseUrl() + '#' + HASH_KEY + encodeData(data);
   }
 
-  function makeQr(text) {
-    var qr = qrcode(0, 'M');
+  function makeQr(text, level) {
+    var qr = qrcode(0, level || 'M');
     qr.addData(text, 'Byte');
     qr.make();
     return qr;
+  }
+
+  // ---- Logo in the centre of the code ----
+
+  var LOGO_BOX = 0.26;   // white backing, share of the code width
+  var LOGO_IMG = 0.2;    // the picture itself
+
+  // Strongest error correction that still fits the data, so a covered centre still scans.
+  function makeQrWithLogo(text, hasLogo) {
+    var levels = hasLogo ? ['H', 'Q', 'M'] : ['M'];
+    var lastErr;
+    for (var i = 0; i < levels.length; i++) {
+      try { return makeQr(text, levels[i]); } catch (e) { lastErr = e; }
+    }
+    throw lastErr;
+  }
+
+  function addLogoToSvg(svg) {
+    var m = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+    if (!m || !current.logo) return svg;
+    var size = parseFloat(m[1]);
+    var box = size * LOGO_BOX, img = size * LOGO_IMG;
+    var bx = (size - box) / 2, ix = (size - img) / 2;
+    var extra =
+      '<defs><clipPath id="qrl-logo-clip"><rect x="' + ix + '" y="' + ix + '" width="' + img + '" height="' + img + '" rx="' + (img * 0.2) + '"/></clipPath></defs>' +
+      '<rect x="' + bx + '" y="' + bx + '" width="' + box + '" height="' + box + '" rx="' + (box * 0.2) + '" fill="#fff"/>' +
+      '<image href="' + current.logo + '" xlink:href="' + current.logo + '" x="' + ix + '" y="' + ix + '" width="' + img + '" height="' + img + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#qrl-logo-clip)"/>';
+    return svg.replace('<svg ', '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ').replace(/<\/svg>\s*$/, extra + '</svg>');
+  }
+
+  function setLogoError(msg) {
+    var el = document.getElementById('logo-error');
+    el.textContent = msg || '';
+    el.hidden = !msg;
+  }
+
+  function setLogo(dataUrl) {
+    current.logo = dataUrl || '';
+    var thumb = document.getElementById('logo-thumb');
+    var rm = document.getElementById('logo-remove');
+    thumb.hidden = !dataUrl;
+    rm.hidden = !dataUrl;
+    document.getElementById('logo-preview').src = dataUrl || '';
+    document.getElementById('logo-label').textContent = dataUrl ? 'Change image' : 'Choose image';
+    render();
+  }
+
+  // Crops to a square and shrinks, so the file stays small and the code stays readable.
+  function loadLogo(file) {
+    setLogoError('');
+    if (!file) return;
+    if (!/^image\//.test(file.type)) { setLogoError('That file is not an image. Choose a PNG, JPG, SVG or WebP.'); return; }
+    if (file.size > 8 * 1024 * 1024) { setLogoError('That image is over 8 MB. Choose a smaller one.'); return; }
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function () {
+      try {
+        var side = Math.min(img.naturalWidth || img.width, img.naturalHeight || img.height) || 256;
+        var out = 256;
+        var canvas = document.createElement('canvas');
+        canvas.width = canvas.height = out;
+        var ctx = canvas.getContext('2d');
+        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        ctx.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, out, out);
+        setLogo(canvas.toDataURL('image/png'));
+      } catch (e) {
+        setLogoError('Could not read that image. Try another one.');
+      }
+      URL.revokeObjectURL(url);
+    };
+    img.onerror = function () {
+      URL.revokeObjectURL(url);
+      setLogoError('Could not read that image. Try another one.');
+    };
+    img.src = url;
   }
 
   function setError(msg) {
@@ -486,14 +561,14 @@
     var target = buildTarget(data, mode);
     var qr;
     try {
-      qr = makeQr(target);
+      qr = makeQrWithLogo(target, !!current.logo);
     } catch (e) {
       els.result.hidden = true;
       setError('Too much data for one QR code. Remove some links or shorten labels.');
       return;
     }
 
-    current.svg = qr.createSvgTag({ cellSize: 8, margin: 4, scalable: true });
+    current.svg = addLogoToSvg(qr.createSvgTag({ cellSize: 8, margin: 4, scalable: true }));
     current.target = target;
     current.qr = qr;
     current.filename = (data.title || 'qr-code').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'qr-code';
@@ -541,7 +616,33 @@
         if (qr.isDark(r, c)) ctx.fillRect((c + margin) * cell, (r + margin) * cell, cell, cell);
       }
     }
-    download(canvas.toDataURL('image/png'), current.filename + '.png');
+    function finish() { download(canvas.toDataURL('image/png'), current.filename + '.png'); }
+    if (!current.logo) { finish(); return; }
+    var box = size * LOGO_BOX, side = size * LOGO_IMG;
+    var bx = (size - box) / 2, ix = (size - side) / 2;
+    var logo = new Image();
+    logo.onload = function () {
+      ctx.fillStyle = '#fff';
+      roundRect(ctx, bx, bx, box, box, box * 0.2);
+      ctx.fill();
+      ctx.save();
+      roundRect(ctx, ix, ix, side, side, side * 0.2);
+      ctx.clip();
+      ctx.drawImage(logo, ix, ix, side, side);
+      ctx.restore();
+      finish();
+    };
+    logo.src = current.logo;
+  }
+
+  function roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
   }
 
   function downloadSvg() {
@@ -585,6 +686,11 @@
     });
     document.getElementById('builder').addEventListener('input', scheduleRender);
     document.getElementById('builder').addEventListener('change', scheduleRender);
+    document.getElementById('logo-input').addEventListener('change', function (e) {
+      loadLogo(e.target.files && e.target.files[0]);
+      e.target.value = '';
+    });
+    document.getElementById('logo-remove').addEventListener('click', function () { setLogoError(''); setLogo(''); });
     document.getElementById('download-png').addEventListener('click', downloadPng);
     document.getElementById('download-svg').addEventListener('click', downloadSvg);
     els.copyLink.addEventListener('click', copyLink);
