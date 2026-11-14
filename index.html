@@ -19,187 +19,116 @@
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
+  <link rel="stylesheet" href="vendor/lenis.css">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="bg" aria-hidden="true"><i></i><i></i></div>
+
   <!-- Home: marketing page, shown to signed-out visitors -->
   <div id="home" class="home" hidden>
-    <header class="nav">
-      <div class="nav-inner">
+    <section class="hero edge">
+      <header class="nav">
         <a class="brand" href="#home" data-home aria-label="QR Code Linker home"><img class="logo logo-on-dark" src="img/logo-dark.png" alt="QR Code Linker" width="195" height="52"><img class="logo logo-on-light" src="img/logo-light.png" alt="QR Code Linker" width="195" height="52"></a>
         <nav class="nav-links" aria-label="Sections">
           <a href="#how" data-scroll="how">How it works</a>
           <a href="#benefits" data-scroll="benefits">Benefits</a>
-          <a href="#uses" data-scroll="uses">Who it's for</a>
+          <a href="#uses" data-scroll="uses">Who it&rsquo;s for</a>
         </nav>
-        <div class="nav-actions">
-          <button class="theme-toggle" type="button" aria-label="Switch theme" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
-          <a class="nav-signin" href="#signin">Sign in</a>
-          <a class="btn small" href="#signup">Create QR code</a>
+        <div class="nav-actions"><button class="theme-toggle" type="button" aria-label="Switch theme" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button><a class="nav-signin" href="#signin">Sign in</a><a class="btn small" href="#signup" data-magnetic>Create QR code</a></div>
+      </header>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="lab" data-hero>Free link-in-a-QR tool</p>
+          <h1><span class="ml"><span data-hero-line>One code.</span></span><span class="ml"><span data-hero-line><span class="mark">Every link.</span></span></span></h1>
+          <p class="sub" data-hero>Put your portfolio, socials and contact details behind a single QR code. Anyone who scans it lands on one clean page.</p>
+          <div class="cta-row" data-hero><a class="btn" href="#signup" data-magnetic>Create QR code <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></a><a class="btn line" href="#signin" data-magnetic>Sign in</a></div>
         </div>
+        <div class="hero-vf" data-hero-vf><div class="vf " aria-hidden="true"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><span class="scan"></span><div class="vfq" id="home-qr"></div></div></div>
       </div>
-    </header>
-
-    <section class="hero">
-      <div class="hero-copy">
-        <p class="eyebrow">Free link-in-a-QR tool</p>
-        <h1>One QR code for <span class="mark">every link.</span></h1>
-        <p class="lead">Put your portfolio, socials and contact details behind a single code. Anyone who scans it lands on a clean page with every link one tap away.</p>
-        <div class="cta-row">
-          <a class="btn" href="#signup">Create QR code <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></a>
-          <a class="btn secondary" href="#signin">Sign in</a>
-        </div>
-        <p class="fine">No app for people to install. Nothing to pay.</p>
-      </div>
-      <div class="hero-visual" aria-hidden="true">
-        <div class="qr-card">
-          <div class="qr-card-code" id="home-qr"></div>
-          <p>Scan me</p>
-        </div>
-        <svg class="scan-arrow" width="120" height="70" viewBox="0 0 120 70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8c30 -10 62 -4 80 22s8 30 2 32"/><path d="M76 56l11 6 4 -12"/></svg>
-        <div class="phone">
-          <div class="phone-notch"></div>
-          <div class="phone-screen">
-            <div class="pv-avatar">J</div>
-            <div class="pv-title">Joshua's links</div>
-            <p class="pv-sub">Tap a link to open it</p>
-            <ul class="pv-links">
-              <li><span class="pv-text"><b>Portfolio</b><small>joshua.design</small></span><span class="pv-arrow"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
-              <li><span class="pv-text"><b>GitHub</b><small>github.com/petersworld</small></span><span class="pv-arrow"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
-              <li><span class="pv-text"><b>Email me</b><small>hello@joshua.design</small></span><span class="pv-arrow"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
-              <li><span class="pv-text"><b>WhatsApp</b><small>wa.me/234…</small></span><span class="pv-arrow"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
-            </ul>
-          </div>
-        </div>
-      </div>
+      <ul class="facts" data-hero><li>No app for people to install</li><li>PNG and SVG downloads</li><li>Links live inside the code</li></ul>
     </section>
 
-    <section class="section" id="how">
-      <div class="section-head reveal">
-        <p class="eyebrow">How it works</p>
-        <h2>From a handful of links to one scan.</h2>
-      </div>
-      <ol class="how-steps">
-        <li class="how-step reveal">
-          <span class="how-no">01</span>
-          <h3>Add your links</h3>
-          <p>Give the page a title and paste in the links you want to share. Label each one so people know what they are tapping.</p>
-          <div class="mini mini-links"><span>Portfolio</span><span>GitHub</span><span>WhatsApp</span></div>
+    <section class="sec edge" id="how">
+      <p class="lab" data-reveal>How it works</p>
+      <h2 data-split>Three steps. No sign-up for scanners.</h2>
+      <ol class="how">
+        <li class="how-li">
+          <span class="num">01</span><h3>Add your links</h3>
+          <p>Name the page, paste each link, label it so people know what they are tapping.</p>
+          <div class="viz"><div class="lrow hot"><span>Portfolio</span><small>joshua.design</small></div><div class="lrow"><span>GitHub</span><small>github.com</small></div><div class="lrow"><span>WhatsApp</span><small>wa.me</small></div></div>
         </li>
-        <li class="how-step reveal">
-          <span class="how-no">02</span>
-          <h3>Get your QR code</h3>
-          <p>The code appears as you type. Preview the exact page your visitors will see before you share anything.</p>
-          <div class="mini mini-qr" id="home-qr-mini"></div>
+        <li class="how-li">
+          <span class="num">02</span><h3>Get your code</h3>
+          <p>The QR code builds as you type. Preview the exact page visitors will see.</p>
+          <div class="viz"><div class="mq" id="home-qr-mini" aria-hidden="true"></div></div>
         </li>
-        <li class="how-step reveal">
-          <span class="how-no">03</span>
-          <h3>Share it anywhere</h3>
-          <p>Download a sharp PNG or SVG for print, or copy the link. Put it on a card, a menu, a poster or a screen.</p>
-          <div class="mini mini-dl"><span>PNG</span><span>SVG</span></div>
+        <li class="how-li">
+          <span class="num">03</span><h3>Share it anywhere</h3>
+          <p>Download a sharp file for print or copy the link. Cards, menus, posters, screens.</p>
+          <div class="viz"><div class="chips"><span class="on">PNG</span><span>SVG</span><span>Copy link</span></div></div>
         </li>
       </ol>
     </section>
 
-    <section class="section" id="benefits">
-      <div class="section-head reveal">
-        <p class="eyebrow">Why people use it</p>
-        <h2>Everything you share, nothing in the way.</h2>
-      </div>
-      <div class="bento">
-        <article class="tile tile-lg reveal">
-          <h3>Every link in one scan</h3>
-          <p>Stop choosing which link earns the space on your card. One code carries them all.</p>
-        </article>
-        <article class="tile reveal">
-          <h3>A clean page, not a wall of text</h3>
-          <p>Scanners land on a tidy, tappable list built for phones.</p>
-        </article>
-        <article class="tile reveal">
-          <h3>Nothing to install</h3>
-          <p>Any phone camera opens it. No app, no sign-up for the people scanning.</p>
-        </article>
-        <article class="tile reveal">
-          <h3>Print-ready files</h3>
-          <p>Download PNG or SVG that stay sharp from a business card to a billboard.</p>
-        </article>
-        <article class="tile tile-lime reveal">
-          <h3>Private by design</h3>
-          <p>Your links live inside the code itself. We do not keep a copy on a server.</p>
-        </article>
-      </div>
-    </section>
-
-    <section class="section" id="uses">
-      <div class="section-head reveal">
-        <p class="eyebrow">Who it's for</p>
-        <h2>Built for anyone with more than one link.</h2>
-      </div>
-      <ul class="uses">
-        <li class="use reveal"><h3>Freelancers and creatives</h3><p>Portfolio, Behance, Instagram and a booking email on your business card.</p></li>
-        <li class="use reveal"><h3>Cafes and restaurants</h3><p>Menu, WhatsApp orders and your socials on every table.</p></li>
-        <li class="use reveal"><h3>Events and speakers</h3><p>Slides, schedule and contact links on a stage screen or a badge.</p></li>
-        <li class="use reveal"><h3>Shops and small businesses</h3><p>Catalogue, location and chat in one code on the window or the packaging.</p></li>
-        <li class="use reveal"><h3>Students and job seekers</h3><p>CV, LinkedIn and GitHub ready to scan at a career fair.</p></li>
-        <li class="use reveal"><h3>Communities and teams</h3><p>Group chat, sign-up form and newsletter on one flyer.</p></li>
+    <section class="sec edge" id="benefits">
+      <p class="lab" data-reveal>Why people use it</p>
+      <h2 data-split>Everything you share, nothing in the way.</h2>
+      <ul class="bl">
+        <li class="bl-li hot"><span class="n">01</span><h3>Every link, one scan</h3><p>Stop choosing which link earns the space on your card.</p><span class="go"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
+        <li class="bl-li"><span class="n">02</span><h3>A clean page for phones</h3><p>Scanners land on a tidy, tappable list.</p><span class="go"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
+        <li class="bl-li"><span class="n">03</span><h3>Nothing to install</h3><p>Any phone camera opens it. No app, no sign-up to scan.</p><span class="go"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
+        <li class="bl-li"><span class="n">04</span><h3>Print-ready files</h3><p>PNG or SVG that stay sharp from a business card to a billboard.</p><span class="go"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
+        <li class="bl-li"><span class="n">05</span><h3>Private by design</h3><p>Your links live inside the code. We keep no copy on a server.</p><span class="go"><svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></span></li>
       </ul>
     </section>
 
-    <section class="final reveal">
-      <h2>Make your first code in a minute.</h2>
-      <p>Add your links, scan the result, and share it. It is free.</p>
-      <div class="cta-row">
-        <a class="btn on-lime" href="#signup">Create QR code <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></a>
-        <a class="btn ghost-ink" href="#signin">Sign in</a>
-      </div>
+    <section class="sec edge" id="uses">
+      <p class="lab" data-reveal>Who it&rsquo;s for</p>
+      <h2 data-split>Anyone with more than one link.</h2>
+      <ul class="use">
+        <li><h3>Freelancers</h3><p>Portfolio, socials and a booking email on one business card.</p></li>
+        <li><h3>Cafes and shops</h3><p>Menu, WhatsApp orders and location on every table or window.</p></li>
+        <li><h3>Events</h3><p>Schedule, slides and contacts on a badge or a stage screen.</p></li>
+        <li><h3>Students</h3><p>CV, LinkedIn and GitHub ready to scan at a career fair.</p></li>
+        <li><h3>Communities</h3><p>Group chat, sign-up form and newsletter on one flyer.</p></li>
+      </ul>
     </section>
 
-    <footer class="home-footer">
-      <a class="brand" href="#home" data-home aria-label="QR Code Linker home"><img class="logo logo-on-dark" src="img/logo-dark.png" alt="QR Code Linker" width="195" height="52"><img class="logo logo-on-light" src="img/logo-light.png" alt="QR Code Linker" width="195" height="52"></a>
-      <p>Links are stored inside your QR code, not on our servers.</p>
-    </footer>
+    <section class="fin">
+      <h2 data-split>Make your first code in a minute.</h2>
+      <div class="fin-row" data-reveal><p>Add your links, scan the result, and share it. It is free.</p>
+        <div class="cta-row"><a class="btn ink" href="#signup" data-magnetic>Create QR code <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></a><a class="btn inkline" href="#signin" data-magnetic>Sign in</a></div></div>
+    </section>
+
+    <footer class="foot edge"><a class="brand" href="#home" data-home aria-label="QR Code Linker home"><img class="logo logo-on-dark" src="img/logo-dark.png" alt="QR Code Linker" width="195" height="52"><img class="logo logo-on-light" src="img/logo-light.png" alt="QR Code Linker" width="195" height="52"></a><p>Links are stored inside your QR code, not on our servers.</p></footer>
   </div>
 
   <!-- Auth: shown when signed out -->
   <main id="auth" class="auth-page" hidden>
-    <button type="button" class="theme-toggle floating" aria-label="Switch to light mode" title="Switch to light mode" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
     <div class="auth-pitch">
-      <a class="brand" href="#home" data-home aria-label="Back to home">
-        <img class="logo logo-on-dark" src="img/logo-dark.png" alt="QR Code Linker" width="195" height="52"><img class="logo logo-on-light" src="img/logo-light.png" alt="QR Code Linker" width="195" height="52">
-      </a>
-
-      <div id="pitch-signin" class="pitch">
-        <h1>One code for <span class="mark">every link.</span></h1>
-        <p>Combine your portfolio, socials and contact details into a single QR code. Scanning it opens a clean page with all of them.</p>
-        <div class="pills" aria-hidden="true">
-          <span class="pill pill-a">Portfolio</span>
-          <span class="pill pill-b">GitHub</span>
-          <span class="pill pill-c">Email me</span>
+      <p class="lab">Your links, one code</p>
+      <div class="pitch-wrap">
+        <div id="pitch-signin" class="pitch">
+          <h1>Welcome <span class="ml-line">back.</span></h1>
+          <p>Your links, your codes, one place to pick up where you left off.</p>
+        </div>
+        <div id="pitch-signup" class="pitch" hidden>
+          <h1>Make a code <span class="ml-line">in a minute.</span></h1>
+          <p>Create a free account, add your links and download your QR code.</p>
         </div>
       </div>
-
-      <div id="pitch-signup" class="pitch" hidden>
-        <h1>Your first code <span class="mark">in a minute.</span></h1>
-        <ol class="steps">
-          <li><span class="num">1</span><span class="step-text">Add the links you want to share</span></li>
-          <li><span class="num">2</span><span class="step-text">Preview the page people will see</span></li>
-          <li><span class="num">3</span><span class="step-text">Print or share the QR code</span></li>
-        </ol>
-      </div>
+      <div class="auth-vf"><div class="vf ink" aria-hidden="true"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><span class="scan"></span><div class="vfq" id="auth-qr"></div></div></div>
     </div>
 
-    <section class="card auth-card">
-      <div class="tabs" role="tablist" aria-label="Account">
-        <button type="button" class="tab" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true">Sign in</button>
-        <button type="button" class="tab" role="tab" id="tab-signup" aria-controls="form-signup" aria-selected="false" tabindex="-1">Sign up</button>
-      </div>
-
-      <form id="form-signin" class="auth-form" role="tabpanel" aria-labelledby="tab-signin" novalidate>
-        <div class="form-head">
-          <h2>Welcome back</h2>
-          <p>Sign in to build your link QR codes.</p>
+    <div class="auth-side">
+      <div class="auth-top"><a class="brand" href="#home" data-home aria-label="Back to home"><img class="logo logo-on-dark" src="img/logo-dark.png" alt="QR Code Linker" width="195" height="52"><img class="logo logo-on-light" src="img/logo-light.png" alt="QR Code Linker" width="195" height="52"></a><button class="theme-toggle" type="button" aria-label="Switch theme" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button></div>
+      <section class="auth-card">
+        <div class="tabs" role="tablist" aria-label="Account">
+          <button type="button" class="tab" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true">Sign in</button>
+          <button type="button" class="tab" role="tab" id="tab-signup" aria-controls="form-signup" aria-selected="false" tabindex="-1">Create account</button>
         </div>
+        <form id="form-signin" class="auth-form" role="tabpanel" aria-labelledby="tab-signin" novalidate>
+        <h2 class="sr">Welcome back</h2>
         <p class="error" role="alert" hidden></p>
         <label class="field"><span>Email</span>
           <input type="email" name="email" autocomplete="email" inputmode="email" placeholder="you@example.com" required>
@@ -211,14 +140,11 @@
             <svg class="eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>
           </button></span>
         </label>
-        <button type="submit" class="btn">Sign in</button>
+        <button type="submit" class="btn block">Sign in <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></button>
       </form>
 
       <form id="form-signup" class="auth-form" role="tabpanel" aria-labelledby="tab-signup" novalidate hidden>
-        <div class="form-head">
-          <h2>Create your account</h2>
-          <p>It only takes a few seconds.</p>
-        </div>
+        <h2 class="sr">Create your account</h2>
         <p class="error" role="alert" hidden></p>
         <label class="field"><span>Name</span>
           <input type="text" name="name" autocomplete="name" maxlength="60" placeholder="Your Name" required>
@@ -240,19 +166,19 @@
             <svg class="eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M3 3l18 18"/></svg>
           </button></span>
         </label>
-        <button type="submit" class="btn">Create account</button>
+        <button type="submit" class="btn block">Create account <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></button>
       </form>
-
-      <p class="auth-note">Accounts are stored only in this browser. Pages opened from a scanned QR code never need an account.</p>
-    </section>
+        <p class="auth-note">Accounts are stored only in this browser. Pages opened from a scanned QR code never need an account.</p>
+      </section>
+    </div>
   </main>
 
   <!-- Builder: shown when signed in -->
   <main id="builder" class="app" hidden>
-    <header class="app-header">
-      <div class="brand">
+    <header class="app-header edge">
+      <a class="brand" href="#home" data-home aria-label="QR Code Linker home">
         <img class="logo logo-on-dark" src="img/logo-dark.png" alt="QR Code Linker" width="195" height="52"><img class="logo logo-on-light" src="img/logo-light.png" alt="QR Code Linker" width="195" height="52">
-      </div>
+      </a>
       <div class="userbar">
         <button type="button" class="theme-toggle" aria-label="Switch to light mode" title="Switch to light mode" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
         <span class="who">Welcome <strong id="user-name"></strong></span>
@@ -260,13 +186,13 @@
       </div>
     </header>
 
-    <div class="intro">
-      <h1>Build your <span class="mark">link page</span></h1>
-      <p class="subtitle">Combine several links into one QR code. Scanning it opens a page listing all of them.</p>
+    <div class="intro edge">
+      <p class="lab">New code</p>
+      <h1>Build your <span class="mark">code.</span></h1>
     </div>
 
-    <div class="editor-grid">
-      <section class="card form-card">
+    <div class="editor-grid edge">
+      <section class="form-card">
         <label class="field">
           <span><span class="step-no">01</span>Page title</span>
           <input id="title" type="text" maxlength="80" placeholder="e.g. My links">
@@ -275,7 +201,7 @@
         <div class="links-block">
           <div class="links-header">
             <h2><span class="step-no">02</span>Links</h2>
-            <button id="add-link" type="button" class="btn secondary small">+ Add link</button>
+            <button id="add-link" type="button" class="add">+ Add link</button>
           </div>
           <ol id="links" class="links"></ol>
         </div>
@@ -295,19 +221,20 @@
         <p id="error" class="error" role="alert" hidden></p>
       </section>
 
-      <aside id="result" class="card result" hidden>
-        <h2>Your QR code</h2>
-        <div id="qr" class="qr" aria-label="Generated QR code"></div>
+      <aside id="result" class="result" hidden>
+        <p class="lab">Live preview</p>
+        <h2>Your code is ready.</h2>
+        <div class="vf ink res-vf"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><span class="scan"></span><div id="qr" class="qr vfq" aria-label="Generated QR code"></div></div>
         <p id="file-warning" class="warning" hidden>
           You opened this app from a local file, so phones can't reach the link inside the QR code.
           Host it (e.g. on GitHub Pages) or use the "plain text" option.
         </p>
         <p class="meta" id="meta"></p>
         <div class="actions">
-          <a id="open-link" class="btn" target="_blank" rel="noopener">Preview scanned page</a>
-          <button id="copy-link" type="button" class="btn secondary">Copy link</button>
-          <button id="download-png" type="button" class="btn secondary">Download PNG</button>
-          <button id="download-svg" type="button" class="btn secondary">Download SVG</button>
+          <a id="open-link" class="btn ink" target="_blank" rel="noopener">Preview scanned page</a>
+          <button id="copy-link" type="button" class="btn inkline">Copy link</button>
+          <button id="download-png" type="button" class="btn inkline">Download PNG</button>
+          <button id="download-svg" type="button" class="btn inkline">Download SVG</button>
         </div>
       </aside>
     </div>
@@ -315,17 +242,15 @@
 
   <!-- Landing: shown when a QR code is scanned -->
   <main id="landing" class="landing" hidden>
-    <button type="button" class="theme-toggle floating" aria-label="Switch to light mode" title="Switch to light mode" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+    <button class="theme-toggle" type="button" aria-label="Switch theme" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
     <header>
+      <p class="lab">Scanned page</p>
       <div id="landing-avatar" class="avatar" aria-hidden="true"></div>
       <h1 id="landing-title"></h1>
       <p class="subtitle">Tap a link to open it</p>
     </header>
     <ul id="landing-links" class="landing-links"></ul>
-    <footer class="made-with">
-      <img src="img/mark-lime.png" alt="" width="16" height="16">
-      Made with QR Code Linker
-    </footer>
+    <footer class="made-with"><span>Made with</span><a href="#home">QR Code Linker <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12L12 4M5.5 4H12v6.5"/></svg></a></footer>
   </main>
 
   <template id="link-row">
@@ -337,6 +262,10 @@
   </template>
 
   <script src="vendor/qrcode.js"></script>
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/ScrollTrigger.min.js"></script>
+  <script src="vendor/lenis.min.js"></script>
+  <script src="motion.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
