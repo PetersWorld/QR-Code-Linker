@@ -218,6 +218,18 @@
           </label>
         </fieldset>
 
+        <div class="logo-field">
+          <p class="lab"><span class="step-no">04</span>Logo or picture <span class="hint">(optional)</span></p>
+          <div class="logo-pick">
+            <input id="logo-input" class="sr" type="file" accept="image/*">
+            <label for="logo-input" class="btn small line" id="logo-label">Choose image</label>
+            <span id="logo-thumb" class="logo-thumb" hidden><img id="logo-preview" alt="Your logo preview" width="56" height="56"></span>
+            <button id="logo-remove" type="button" class="pill-btn" hidden>Remove</button>
+          </div>
+          <p class="note-line">Shown in the centre of your QR code. A simple square or round image scans best. It stays in your browser.</p>
+          <p id="logo-error" class="error" role="alert" hidden></p>
+        </div>
+
         <p id="error" class="error" role="alert" hidden></p>
       </section>
 
