@@ -226,11 +226,7 @@
             <span id="logo-thumb" class="logo-thumb" hidden><img id="logo-preview" alt="Your logo preview" width="56" height="56"></span>
             <button id="logo-remove" type="button" class="pill-btn" hidden>Remove</button>
           </div>
-          <label id="logo-page-opt" class="check" hidden>
-            <input id="logo-on-page" type="checkbox" checked>
-            <span>Also show it at the top of the scanned page</span>
-          </label>
-          <p class="note-line">Shown in the centre of your QR code. A simple square or round image scans best. Showing it on the scanned page adds a very small copy to the code, which makes the code denser, so print it a little larger.</p>
+          <p class="note-line">Shown in the centre of your QR code. A simple square or round image scans best. It stays in your browser.</p>
           <p id="logo-error" class="error" role="alert" hidden></p>
         </div>
 
@@ -260,7 +256,8 @@
   <main id="landing" class="landing" hidden>
     <button class="theme-toggle" type="button" aria-label="Switch theme" aria-pressed="false"><svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
     <header>
-      <div id="landing-avatar" class="avatar" aria-hidden="true" hidden></div>
+      <p class="lab">Scanned page</p>
+      <div id="landing-avatar" class="avatar" aria-hidden="true"></div>
       <h1 id="landing-title"></h1>
       <p class="subtitle">Tap a link to open it</p>
     </header>
