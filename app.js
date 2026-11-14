@@ -261,7 +261,7 @@
     authReady = true;
     ['signin', 'signup'].forEach(function (name, i) {
       var tab = document.getElementById('tab-' + name);
-      tab.addEventListener('click', function () { selectTab(name); });
+      tab.addEventListener('click', function () { selectTab(name); if (window.QRLMotion) QRLMotion.swap(document.getElementById('pitch-' + name)); });
       tab.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
           var other = i === 0 ? 'signup' : 'signin';
@@ -285,18 +285,74 @@
     initTheme();
     document.getElementById('sign-out').addEventListener('click', function () {
       storeRemove(SESSION_KEY);
-      showAuth();
+      if (location.hash === '#home') location.reload(); else location.hash = '#home';
     });
   }
 
-  function showAuth() {
+  // The marketing page shown to signed-out visitors.
+  // Decorative sample codes on the home and sign in screens.
+  var demoDone = false;
+  function renderDemoQrs() {
+    if (demoDone) return;
+    demoDone = true;
+    var demo = { title: "Joshua's links", links: [
+      { label: 'Portfolio', url: 'https://example.com/portfolio' },
+      { label: 'GitHub', url: 'https://github.com/example' },
+      { label: 'Email me', url: 'mailto:hello@example.com' },
+      { label: 'WhatsApp', url: 'https://wa.me/0000000000' }
+    ] };
+    var text = appBaseUrl() + '#' + HASH_KEY + encodeData(demo);
+    ['home-qr', 'home-qr-mini', 'auth-qr'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      try { el.innerHTML = makeQr(text).createSvgTag({ cellSize: 8, margin: 0, scalable: true }); } catch (e) { /* decorative only */ }
+    });
+  }
+
+  var homeReady = false;
+  function initHome() {
+    if (homeReady) return;
+    homeReady = true;
+    initTheme();
+    renderDemoQrs();
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-scroll]'), function (a) {
+      a.addEventListener('click', function (e) {
+        var t = document.getElementById(a.getAttribute('data-scroll'));
+        if (!t) return;
+        e.preventDefault();
+        if (window.QRLMotion) QRLMotion.scrollTo(t); else t.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-home]'), function (a) {
+      a.addEventListener('click', function (e) {
+        if (!document.getElementById('home').hidden) { e.preventDefault(); window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }
+      });
+    });
+  }
+
+  function showHome() {
+    initHome();
+    document.getElementById('auth').hidden = true;
+    document.getElementById('builder').hidden = true;
+    document.getElementById('landing').hidden = true;
+    document.getElementById('home').hidden = false;
+    document.title = 'QR Code Linker: one QR code for every link';
+    window.scrollTo(0, 0);
+    if (window.QRLMotion) QRLMotion.home();
+  }
+
+  function showAuth(tab) {
     initAuth();
+    document.getElementById('home').hidden = true;
     document.getElementById('builder').hidden = true;
     document.getElementById('landing').hidden = true;
     document.getElementById('auth').hidden = false;
     document.title = 'Sign in · QR Code Linker';
-    selectTab('signin');
+    renderDemoQrs();
+    selectTab(tab === 'signup' ? 'signup' : 'signin');
     window.scrollTo(0, 0);
+    if (window.QRLMotion) QRLMotion.auth();
   }
 
   // Shows the editor when signed in, otherwise the sign in / sign up screen.
@@ -307,6 +363,7 @@
     document.getElementById('auth').hidden = true;
     document.getElementById('user-name').textContent = loadUsers()[session.email].name || session.email;
     showBuilder();
+    if (window.QRLMotion) QRLMotion.builder();
     document.title = 'QR Code Linker';
     window.scrollTo(0, 0);
   }
@@ -348,6 +405,7 @@
     document.getElementById('builder').hidden = true;
     document.getElementById('auth').hidden = true;
     document.getElementById('landing').hidden = false;
+    if (window.QRLMotion) QRLMotion.landing();
   }
 
   // ---- Builder view ----
@@ -545,6 +603,9 @@
         if (data.links.length) return showLanding(data);
       } catch (e) { /* fall through to the builder */ }
     }
+    if (hash === 'signin' || hash === 'signup') return showAuth(hash);
+    if (hash === 'home') return showHome();
+    if (!getSession()) return showHome();
     enterApp();
   }
 
