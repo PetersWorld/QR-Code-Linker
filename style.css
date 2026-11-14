@@ -153,7 +153,6 @@ input::placeholder{color:var(--su);opacity:.85}
 /* ---------- Scanned page ---------- */
 .landing{position:relative;max-width:520px;min-height:100vh;margin:0 auto;padding:72px 24px 28px;display:flex;flex-direction:column;gap:36px}
 .landing .theme-toggle{position:fixed;top:16px;right:16px;z-index:5}
-.landing header .avatar{display:none}
 .landing h1{font-size:clamp(48px,14vw,76px);line-height:.92;letter-spacing:-.05em;font-weight:700;margin-top:14px;overflow-wrap:anywhere}
 .subtitle{font-size:16px;color:var(--mu);margin-top:14px}
 .landing-links{counter-reset:ln;border-top:1px solid var(--tx)}

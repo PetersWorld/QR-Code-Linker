@@ -29,6 +29,9 @@
   }
 
   function decodeData(encoded) {
+    // Codes made while pictures were supported carry a trailing "&p=..." part. Ignore it.
+    var cut = encoded.indexOf('&p=');
+    if (cut !== -1) encoded = encoded.slice(0, cut);
     var raw = JSON.parse(fromBase64Url(encoded));
     if (!raw || !Array.isArray(raw.l)) throw new Error('Invalid data');
     return {
@@ -377,8 +380,6 @@
     document.getElementById('landing-title').textContent = title;
     var list = document.getElementById('landing-links');
     list.textContent = '';
-    var avatar = document.getElementById('landing-avatar');
-    if (avatar) avatar.textContent = (title.trim().charAt(0) || 'Q').toUpperCase();
     data.links.forEach(function (link) {
       var li = document.createElement('li');
       var a = document.createElement('a');
