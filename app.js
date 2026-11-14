@@ -33,47 +33,15 @@
   // The picture travels inside the code as a tiny palette image: size, colour count, the colours,
   // then packed pixel indexes. A normal PNG or JPEG header alone is bigger than this whole picture.
   var AVATAR_PARAM = '&p=';
-  var PREVIEW_PIC_KEY = 'qrl.previewPic';
 
   function bitsFor(k) { return k <= 2 ? 1 : k <= 4 ? 2 : k <= 8 ? 3 : 4; }
 
-  function b64urlToBytes(s) {
-    var bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
-    var out = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-    return out;
-  }
-
-  function bytesToB64url(bytes) {
-    var s = '';
-    for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
-    return btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
-  }
-
-  function pipeBytes(bytes, stream) {
-    var w = stream.writable.getWriter();
-    w.write(bytes);
-    w.close();
-    return new Response(stream.readable).arrayBuffer().then(function (b) { return new Uint8Array(b); });
-  }
-
-  // Resolves to a PNG data URL, or '' when the picture cannot be read.
   function avatarToDataUrl(p) {
-    if (typeof p !== 'string' || !/^[A-Za-z0-9_-]{8,2000}$/.test(p)) return Promise.resolve('');
-    var raw;
+    if (typeof p !== 'string' || !/^[A-Za-z0-9_-]{8,1500}$/.test(p)) return '';
     try {
-      if (p.charAt(0) === 'z') {
-        if (!window.DecompressionStream) return Promise.resolve('');
-        raw = pipeBytes(b64urlToBytes(p.slice(1)), new DecompressionStream('deflate-raw'));
-      } else {
-        raw = Promise.resolve(b64urlToBytes(p));
-      }
-    } catch (e) {
-      return Promise.resolve('');
-    }
-    return raw.then(function (bin) {
-      var size = bin[0], k = bin[1];
-      if (size < 8 || size > 96 || k < 2 || k > 16 || bin.length < 2 + k * 3) return '';
+      var bin = atob(p.replace(/-/g, '+').replace(/_/g, '/'));
+      var size = bin.charCodeAt(0), k = bin.charCodeAt(1);
+      if (size < 8 || size > 64 || k < 2 || k > 16 || bin.length < 2 + k * 3) return '';
       var bpp = bitsFor(k), base = 2 + k * 3;
       if (bin.length < base + Math.ceil(size * size * bpp / 8)) return '';
       var canvas = document.createElement('canvas');
@@ -84,17 +52,19 @@
         var idx = 0;
         for (var b = 0; b < bpp; b++) {
           var bit = n * bpp + b;
-          idx = (idx << 1) | ((bin[base + (bit >> 3)] >> (7 - (bit & 7))) & 1);
+          idx = (idx << 1) | ((bin.charCodeAt(base + (bit >> 3)) >> (7 - (bit & 7))) & 1);
         }
         if (idx >= k) idx = k - 1;
-        out.data[n * 4] = bin[2 + idx * 3];
-        out.data[n * 4 + 1] = bin[3 + idx * 3];
-        out.data[n * 4 + 2] = bin[4 + idx * 3];
+        out.data[n * 4] = bin.charCodeAt(2 + idx * 3);
+        out.data[n * 4 + 1] = bin.charCodeAt(3 + idx * 3);
+        out.data[n * 4 + 2] = bin.charCodeAt(4 + idx * 3);
         out.data[n * 4 + 3] = 255;
       }
       ctx.putImageData(out, 0, 0);
       return canvas.toDataURL('image/png');
-    }).catch(function () { return ''; });
+    } catch (e) {
+      return '';
+    }
   }
 
   function decodeData(encoded) {
@@ -105,7 +75,7 @@
     if (!raw || !Array.isArray(raw.l)) throw new Error('Invalid data');
     return {
       title: typeof raw.t === 'string' ? raw.t : '',
-      avatar: /^[A-Za-z0-9_-]{8,2000}$/.test(pic) ? pic : '',
+      avatar: avatarToDataUrl(pic),
       links: raw.l
         .filter(function (l) { return Array.isArray(l) && isSafeUrl(l[1]); })
         .map(function (l) { return { label: String(l[0] || ''), url: String(l[1]) }; })
@@ -455,18 +425,9 @@
     avatar.hidden = !data.avatar;
     if (data.avatar) {
       var pic = document.createElement('img');
+      pic.src = data.avatar;
       pic.alt = '';
       avatar.appendChild(pic);
-      // On the device that made the code, show the full-quality picture; everyone else sees the small copy.
-      var own = null;
-      try { own = JSON.parse(storeGet(PREVIEW_PIC_KEY)); } catch (e) { /* none saved */ }
-      if (own && typeof own === 'object' && own.k === data.avatar && typeof own.u === 'string' && own.u.indexOf('data:image/') === 0) {
-        pic.src = own.u;
-      } else {
-        avatarToDataUrl(data.avatar).then(function (url) {
-          if (url) pic.src = url; else avatar.hidden = true;
-        });
-      }
     }
     data.links.forEach(function (link) {
       var li = document.createElement('li');
@@ -599,47 +560,41 @@
     render();
   }
 
-  // A small copy for the scanned page. A QR code only holds a few kilobytes, so the picture is reduced to
-  // a few colours on a small grid and compressed. The largest grid that still fits the budget wins.
+  // A very small copy for the scanned page. A QR code only holds a few kilobytes, so the picture is
+  // reduced to a handful of colours on a tiny grid.
   function makeAvatar(img, w, h, side) {
-    if (!window.CompressionStream) return Promise.resolve('');
-    var tries = [[64, 16], [56, 16], [48, 16], [48, 8], [40, 8], [32, 8], [24, 8], [16, 8]];
-    var BUDGET = 560;
-    var chain = Promise.resolve('');
-    tries.forEach(function (t) {
-      chain = chain.then(function (found) {
-        if (found) return found;
-        var size = t[0];
-        var c = document.createElement('canvas');
-        c.width = c.height = size;
-        var x = c.getContext('2d');
-        x.imageSmoothingQuality = 'high';
-        x.fillStyle = '#fff';
-        x.fillRect(0, 0, size, size);
-        x.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, size, size);
-        var px = x.getImageData(0, 0, size, size).data;
-        var pal = quantize(px, t[1]);
-        var bpp = bitsFor(pal.length);
-        var bytes = [size, pal.length];
-        pal.forEach(function (col) { bytes.push(col[0], col[1], col[2]); });
-        var packed = new Array(Math.ceil(size * size * bpp / 8));
-        for (var z = 0; z < packed.length; z++) packed[z] = 0;
-        for (var n = 0; n < size * size; n++) {
-          var idx = nearest(pal, px[n * 4], px[n * 4 + 1], px[n * 4 + 2]);
-          for (var b = 0; b < bpp; b++) {
-            if ((idx >> (bpp - 1 - b)) & 1) {
-              var bit = n * bpp + b;
-              packed[bit >> 3] |= 1 << (7 - (bit & 7));
-            }
+    var tries = [[28, 8], [24, 8], [24, 4], [16, 8], [16, 4]];
+    for (var t = 0; t < tries.length; t++) {
+      var size = tries[t][0], k = tries[t][1];
+      var c = document.createElement('canvas');
+      c.width = c.height = size;
+      var x = c.getContext('2d');
+      x.fillStyle = '#fff';
+      x.fillRect(0, 0, size, size);
+      x.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, size, size);
+      var px = x.getImageData(0, 0, size, size).data;
+      var pal = quantize(px, k);
+      var bpp = bitsFor(pal.length);
+      var bytes = [size, pal.length];
+      pal.forEach(function (col) { bytes.push(col[0], col[1], col[2]); });
+      var packed = new Array(Math.ceil(size * size * bpp / 8));
+      for (var z = 0; z < packed.length; z++) packed[z] = 0;
+      for (var n = 0; n < size * size; n++) {
+        var idx = nearest(pal, px[n * 4], px[n * 4 + 1], px[n * 4 + 2]);
+        for (var b = 0; b < bpp; b++) {
+          if ((idx >> (bpp - 1 - b)) & 1) {
+            var bit = n * bpp + b;
+            packed[bit >> 3] |= 1 << (7 - (bit & 7));
           }
         }
-        return pipeBytes(new Uint8Array(bytes.concat(packed)), new CompressionStream('deflate-raw')).then(function (zipped) {
-          var enc = 'z' + bytesToB64url(zipped);
-          return enc.length <= BUDGET ? enc : '';
-        });
-      });
-    });
-    return chain;
+      }
+      bytes = bytes.concat(packed);
+      var s = '';
+      for (var q = 0; q < bytes.length; q++) s += String.fromCharCode(bytes[q]);
+      var enc = btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
+      if (enc.length <= 440) return enc;
+    }
+    return '';
   }
 
   function nearest(pal, r, g, b) {
@@ -703,14 +658,7 @@
         var ctx = canvas.getContext('2d');
         var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
         ctx.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, out, out);
-        var full = canvas.toDataURL('image/png');
-        makeAvatar(img, w, h, side).then(function (av) {
-          if (av) storeSet(PREVIEW_PIC_KEY, JSON.stringify({ k: av, u: full }));
-          setLogo(full, av);
-        }).catch(function () {
-          setLogo(full, '');
-        }).then(function () { URL.revokeObjectURL(url); });
-        return;
+        setLogo(canvas.toDataURL('image/png'), makeAvatar(img, w, h, side));
       } catch (e) {
         setLogoError('Could not read that image. Try another one.');
       }
