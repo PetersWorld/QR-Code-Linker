@@ -25,87 +25,17 @@
   }
 
   function encodeData(data) {
-    var obj = { t: data.title, l: data.links.map(function (l) { return [l.label, l.url]; }) };
-    // The picture rides beside the JSON, not inside it, so it is only base64-encoded once.
-    return toBase64Url(JSON.stringify(obj)) + (data.avatar ? AVATAR_PARAM + data.avatar : '');
-  }
-
-  // The picture travels inside the code as a tiny palette image: size, colour count, the colours,
-  // then packed pixel indexes. A normal PNG or JPEG header alone is bigger than this whole picture.
-  var AVATAR_PARAM = '&p=';
-  var PREVIEW_PIC_KEY = 'qrl.previewPic';
-
-  function bitsFor(k) { return k <= 2 ? 1 : k <= 4 ? 2 : k <= 8 ? 3 : 4; }
-
-  function b64urlToBytes(s) {
-    var bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'));
-    var out = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
-    return out;
-  }
-
-  function bytesToB64url(bytes) {
-    var s = '';
-    for (var i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
-    return btoa(s).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_');
-  }
-
-  function pipeBytes(bytes, stream) {
-    var w = stream.writable.getWriter();
-    w.write(bytes);
-    w.close();
-    return new Response(stream.readable).arrayBuffer().then(function (b) { return new Uint8Array(b); });
-  }
-
-  // Resolves to a PNG data URL, or '' when the picture cannot be read.
-  function avatarToDataUrl(p) {
-    if (typeof p !== 'string' || !/^[A-Za-z0-9_-]{8,2000}$/.test(p)) return Promise.resolve('');
-    var raw;
-    try {
-      if (p.charAt(0) === 'z') {
-        if (!window.DecompressionStream) return Promise.resolve('');
-        raw = pipeBytes(b64urlToBytes(p.slice(1)), new DecompressionStream('deflate-raw'));
-      } else {
-        raw = Promise.resolve(b64urlToBytes(p));
-      }
-    } catch (e) {
-      return Promise.resolve('');
-    }
-    return raw.then(function (bin) {
-      var size = bin[0], k = bin[1];
-      if (size < 8 || size > 96 || k < 2 || k > 16 || bin.length < 2 + k * 3) return '';
-      var bpp = bitsFor(k), base = 2 + k * 3;
-      if (bin.length < base + Math.ceil(size * size * bpp / 8)) return '';
-      var canvas = document.createElement('canvas');
-      canvas.width = canvas.height = size;
-      var ctx = canvas.getContext('2d');
-      var out = ctx.createImageData(size, size);
-      for (var n = 0; n < size * size; n++) {
-        var idx = 0;
-        for (var b = 0; b < bpp; b++) {
-          var bit = n * bpp + b;
-          idx = (idx << 1) | ((bin[base + (bit >> 3)] >> (7 - (bit & 7))) & 1);
-        }
-        if (idx >= k) idx = k - 1;
-        out.data[n * 4] = bin[2 + idx * 3];
-        out.data[n * 4 + 1] = bin[3 + idx * 3];
-        out.data[n * 4 + 2] = bin[4 + idx * 3];
-        out.data[n * 4 + 3] = 255;
-      }
-      ctx.putImageData(out, 0, 0);
-      return canvas.toDataURL('image/png');
-    }).catch(function () { return ''; });
+    return toBase64Url(JSON.stringify({ t: data.title, l: data.links.map(function (l) { return [l.label, l.url]; }) }));
   }
 
   function decodeData(encoded) {
-    var cut = encoded.indexOf(AVATAR_PARAM);
-    var pic = cut === -1 ? '' : encoded.slice(cut + AVATAR_PARAM.length);
+    // Codes made while pictures were supported carry a trailing "&p=..." part. Ignore it.
+    var cut = encoded.indexOf('&p=');
     if (cut !== -1) encoded = encoded.slice(0, cut);
     var raw = JSON.parse(fromBase64Url(encoded));
     if (!raw || !Array.isArray(raw.l)) throw new Error('Invalid data');
     return {
       title: typeof raw.t === 'string' ? raw.t : '',
-      avatar: /^[A-Za-z0-9_-]{8,2000}$/.test(pic) ? pic : '',
       links: raw.l
         .filter(function (l) { return Array.isArray(l) && isSafeUrl(l[1]); })
         .map(function (l) { return { label: String(l[0] || ''), url: String(l[1]) }; })
@@ -450,24 +380,6 @@
     document.getElementById('landing-title').textContent = title;
     var list = document.getElementById('landing-links');
     list.textContent = '';
-    var avatar = document.getElementById('landing-avatar');
-    avatar.textContent = '';
-    avatar.hidden = !data.avatar;
-    if (data.avatar) {
-      var pic = document.createElement('img');
-      pic.alt = '';
-      avatar.appendChild(pic);
-      // On the device that made the code, show the full-quality picture; everyone else sees the small copy.
-      var own = null;
-      try { own = JSON.parse(storeGet(PREVIEW_PIC_KEY)); } catch (e) { /* none saved */ }
-      if (own && typeof own === 'object' && own.k === data.avatar && typeof own.u === 'string' && own.u.indexOf('data:image/') === 0) {
-        pic.src = own.u;
-      } else {
-        avatarToDataUrl(data.avatar).then(function (url) {
-          if (url) pic.src = url; else avatar.hidden = true;
-        });
-      }
-    }
     data.links.forEach(function (link) {
       var li = document.createElement('li');
       var a = document.createElement('a');
@@ -500,7 +412,7 @@
   // ---- Builder view ----
 
   var els = {};
-  var current = { svg: '', target: '', filename: 'qr-code', logo: '', avatar: '' };
+  var current = { svg: '', target: '', filename: 'qr-code' };
   var renderTimer = null;
 
   function addRow(label, url) {
@@ -544,183 +456,11 @@
     return appBaseUrl() + '#' + HASH_KEY + encodeData(data);
   }
 
-  function makeQr(text, level) {
-    var qr = qrcode(0, level || 'M');
+  function makeQr(text) {
+    var qr = qrcode(0, 'M');
     qr.addData(text, 'Byte');
     qr.make();
     return qr;
-  }
-
-  // ---- Logo in the centre of the code ----
-
-  var LOGO_BOX = 0.26;   // white backing, share of the code width
-  var LOGO_IMG = 0.2;    // the picture itself
-
-  // Strongest error correction that still fits the data, so a covered centre still scans.
-  function makeQrWithLogo(text, hasLogo) {
-    // Short payloads can afford the strongest correction; long ones need a smaller grid to stay scannable.
-    var levels = !hasLogo ? ['M'] : text.length > 300 ? ['Q', 'M'] : ['H', 'Q', 'M'];
-    var lastErr;
-    for (var i = 0; i < levels.length; i++) {
-      try { return makeQr(text, levels[i]); } catch (e) { lastErr = e; }
-    }
-    throw lastErr;
-  }
-
-  function addLogoToSvg(svg) {
-    var m = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
-    if (!m || !current.logo) return svg;
-    var size = parseFloat(m[1]);
-    var box = size * LOGO_BOX, img = size * LOGO_IMG;
-    var bx = (size - box) / 2, ix = (size - img) / 2;
-    var extra =
-      '<defs><clipPath id="qrl-logo-clip"><rect x="' + ix + '" y="' + ix + '" width="' + img + '" height="' + img + '" rx="' + (img * 0.2) + '"/></clipPath></defs>' +
-      '<rect x="' + bx + '" y="' + bx + '" width="' + box + '" height="' + box + '" rx="' + (box * 0.2) + '" fill="#fff"/>' +
-      '<image href="' + current.logo + '" xlink:href="' + current.logo + '" x="' + ix + '" y="' + ix + '" width="' + img + '" height="' + img + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#qrl-logo-clip)"/>';
-    return svg.replace('<svg ', '<svg xmlns:xlink="http://www.w3.org/1999/xlink" ').replace(/<\/svg>\s*$/, extra + '</svg>');
-  }
-
-  function setLogoError(msg) {
-    var el = document.getElementById('logo-error');
-    el.textContent = msg || '';
-    el.hidden = !msg;
-  }
-
-  function setLogo(dataUrl, avatar) {
-    current.logo = dataUrl || '';
-    current.avatar = avatar || '';
-    document.getElementById('logo-page-opt').hidden = !dataUrl;
-    var thumb = document.getElementById('logo-thumb');
-    var rm = document.getElementById('logo-remove');
-    thumb.hidden = !dataUrl;
-    rm.hidden = !dataUrl;
-    document.getElementById('logo-preview').src = dataUrl || '';
-    document.getElementById('logo-label').textContent = dataUrl ? 'Change image' : 'Choose image';
-    render();
-  }
-
-  // A small copy for the scanned page. A QR code only holds a few kilobytes, so the picture is reduced to
-  // a few colours on a small grid and compressed. The largest grid that still fits the budget wins.
-  function makeAvatar(img, w, h, side) {
-    if (!window.CompressionStream) return Promise.resolve('');
-    var tries = [[64, 16], [56, 16], [48, 16], [48, 8], [40, 8], [32, 8], [24, 8], [16, 8]];
-    var BUDGET = 560;
-    var chain = Promise.resolve('');
-    tries.forEach(function (t) {
-      chain = chain.then(function (found) {
-        if (found) return found;
-        var size = t[0];
-        var c = document.createElement('canvas');
-        c.width = c.height = size;
-        var x = c.getContext('2d');
-        x.imageSmoothingQuality = 'high';
-        x.fillStyle = '#fff';
-        x.fillRect(0, 0, size, size);
-        x.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, size, size);
-        var px = x.getImageData(0, 0, size, size).data;
-        var pal = quantize(px, t[1]);
-        var bpp = bitsFor(pal.length);
-        var bytes = [size, pal.length];
-        pal.forEach(function (col) { bytes.push(col[0], col[1], col[2]); });
-        var packed = new Array(Math.ceil(size * size * bpp / 8));
-        for (var z = 0; z < packed.length; z++) packed[z] = 0;
-        for (var n = 0; n < size * size; n++) {
-          var idx = nearest(pal, px[n * 4], px[n * 4 + 1], px[n * 4 + 2]);
-          for (var b = 0; b < bpp; b++) {
-            if ((idx >> (bpp - 1 - b)) & 1) {
-              var bit = n * bpp + b;
-              packed[bit >> 3] |= 1 << (7 - (bit & 7));
-            }
-          }
-        }
-        return pipeBytes(new Uint8Array(bytes.concat(packed)), new CompressionStream('deflate-raw')).then(function (zipped) {
-          var enc = 'z' + bytesToB64url(zipped);
-          return enc.length <= BUDGET ? enc : '';
-        });
-      });
-    });
-    return chain;
-  }
-
-  function nearest(pal, r, g, b) {
-    var best = 0, bd = Infinity;
-    for (var i = 0; i < pal.length; i++) {
-      var dr = pal[i][0] - r, dg = pal[i][1] - g, db = pal[i][2] - b;
-      var d = dr * dr + dg * dg + db * db;
-      if (d < bd) { bd = d; best = i; }
-    }
-    return best;
-  }
-
-  // Median cut: repeatedly split the colour group with the widest spread.
-  function quantize(px, k) {
-    var all = [];
-    for (var i = 0; i < px.length; i += 4) all.push([px[i], px[i + 1], px[i + 2]]);
-    var boxes = [all];
-    function spread(box) {
-      var lo = [255, 255, 255], hi = [0, 0, 0];
-      box.forEach(function (c) { for (var ch = 0; ch < 3; ch++) { if (c[ch] < lo[ch]) lo[ch] = c[ch]; if (c[ch] > hi[ch]) hi[ch] = c[ch]; } });
-      var best = 0, range = -1;
-      for (var ch = 0; ch < 3; ch++) if (hi[ch] - lo[ch] > range) { range = hi[ch] - lo[ch]; best = ch; }
-      return { ch: best, range: range };
-    }
-    while (boxes.length < k) {
-      var pick = -1, score = 0;
-      boxes.forEach(function (box, bi) {
-        if (box.length < 2) return;
-        var sc = spread(box).range * box.length;
-        if (sc > score) { score = sc; pick = bi; }
-      });
-      if (pick === -1) break;
-      var box = boxes[pick], ch = spread(box).ch;
-      box.sort(function (p, q) { return p[ch] - q[ch]; });
-      var mid = box.length >> 1;
-      boxes.splice(pick, 1, box.slice(0, mid), box.slice(mid));
-    }
-    var pal = boxes.map(function (box) {
-      var s = [0, 0, 0];
-      box.forEach(function (c) { s[0] += c[0]; s[1] += c[1]; s[2] += c[2]; });
-      return [Math.round(s[0] / box.length), Math.round(s[1] / box.length), Math.round(s[2] / box.length)];
-    });
-    while (pal.length < 2) pal.push(pal[0]);
-    return pal;
-  }
-
-  // Crops to a square and shrinks, so the file stays small and the code stays readable.
-  function loadLogo(file) {
-    setLogoError('');
-    if (!file) return;
-    if (!/^image\//.test(file.type)) { setLogoError('That file is not an image. Choose a PNG, JPG, SVG or WebP.'); return; }
-    if (file.size > 8 * 1024 * 1024) { setLogoError('That image is over 8 MB. Choose a smaller one.'); return; }
-    var url = URL.createObjectURL(file);
-    var img = new Image();
-    img.onload = function () {
-      try {
-        var side = Math.min(img.naturalWidth || img.width, img.naturalHeight || img.height) || 256;
-        var out = 256;
-        var canvas = document.createElement('canvas');
-        canvas.width = canvas.height = out;
-        var ctx = canvas.getContext('2d');
-        var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
-        ctx.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, out, out);
-        var full = canvas.toDataURL('image/png');
-        makeAvatar(img, w, h, side).then(function (av) {
-          if (av) storeSet(PREVIEW_PIC_KEY, JSON.stringify({ k: av, u: full }));
-          setLogo(full, av);
-        }).catch(function () {
-          setLogo(full, '');
-        }).then(function () { URL.revokeObjectURL(url); });
-        return;
-      } catch (e) {
-        setLogoError('Could not read that image. Try another one.');
-      }
-      URL.revokeObjectURL(url);
-    };
-    img.onerror = function () {
-      URL.revokeObjectURL(url);
-      setLogoError('Could not read that image. Try another one.');
-    };
-    img.src = url;
   }
 
   function setError(msg) {
@@ -731,7 +471,6 @@
   function render() {
     var collected = collectLinks();
     var data = { title: els.title.value.trim(), links: collected.links };
-    if (current.logo && current.avatar && document.getElementById('logo-on-page').checked) data.avatar = current.avatar;
     var mode = document.querySelector('input[name="mode"]:checked').value;
 
     if (collected.invalid) {
@@ -748,14 +487,14 @@
     var target = buildTarget(data, mode);
     var qr;
     try {
-      qr = makeQrWithLogo(target, !!current.logo);
+      qr = makeQr(target);
     } catch (e) {
       els.result.hidden = true;
-      setError('Too much data for one QR code. Remove some links, shorten labels, or turn off the picture on the scanned page.');
+      setError('Too much data for one QR code. Remove some links or shorten labels.');
       return;
     }
 
-    current.svg = addLogoToSvg(qr.createSvgTag({ cellSize: 8, margin: 4, scalable: true }));
+    current.svg = qr.createSvgTag({ cellSize: 8, margin: 4, scalable: true });
     current.target = target;
     current.qr = qr;
     current.filename = (data.title || 'qr-code').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '').toLowerCase() || 'qr-code';
@@ -803,33 +542,7 @@
         if (qr.isDark(r, c)) ctx.fillRect((c + margin) * cell, (r + margin) * cell, cell, cell);
       }
     }
-    function finish() { download(canvas.toDataURL('image/png'), current.filename + '.png'); }
-    if (!current.logo) { finish(); return; }
-    var box = size * LOGO_BOX, side = size * LOGO_IMG;
-    var bx = (size - box) / 2, ix = (size - side) / 2;
-    var logo = new Image();
-    logo.onload = function () {
-      ctx.fillStyle = '#fff';
-      roundRect(ctx, bx, bx, box, box, box * 0.2);
-      ctx.fill();
-      ctx.save();
-      roundRect(ctx, ix, ix, side, side, side * 0.2);
-      ctx.clip();
-      ctx.drawImage(logo, ix, ix, side, side);
-      ctx.restore();
-      finish();
-    };
-    logo.src = current.logo;
-  }
-
-  function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
+    download(canvas.toDataURL('image/png'), current.filename + '.png');
   }
 
   function downloadSvg() {
@@ -873,11 +586,6 @@
     });
     document.getElementById('builder').addEventListener('input', scheduleRender);
     document.getElementById('builder').addEventListener('change', scheduleRender);
-    document.getElementById('logo-input').addEventListener('change', function (e) {
-      loadLogo(e.target.files && e.target.files[0]);
-      e.target.value = '';
-    });
-    document.getElementById('logo-remove').addEventListener('click', function () { setLogoError(''); setLogo(''); });
     document.getElementById('download-png').addEventListener('click', downloadPng);
     document.getElementById('download-svg').addEventListener('click', downloadSvg);
     els.copyLink.addEventListener('click', copyLink);
