@@ -239,11 +239,19 @@ input::placeholder{color:var(--su);opacity:.85}
 @media (max-width:900px){
   .edge{padding-left:24px;padding-right:24px}
   .auth-page{grid-template-columns:1fr}
-  .auth-pitch{padding:32px 24px;gap:24px}
+  /* Phone: logo and theme toggle sit in the lime band at the very top, using the black logo for contrast. */
+  .auth-side{display:contents}
+  .auth-top{order:1;background:var(--lime);padding:16px 24px 0;min-height:76px}
+  .auth-pitch{order:2;padding:20px 24px 36px;gap:24px}
+  .auth-card{order:3;padding:28px 24px 48px;margin:0 auto}
+  .auth-top .logo{height:38px}
+  .auth-top .logo-on-dark{display:none}
+  .auth-top .logo-on-light{display:block}
+  .auth-top .theme-toggle{color:var(--ink);border-color:rgba(26,26,26,.55)}
+  .auth-top .theme-toggle:hover{border-color:var(--ink)}
   .auth-vf{display:none}
   .pitch h1{font-size:clamp(44px,13vw,72px)}
   .pitch p{margin-top:16px;font-size:18px}
-  .auth-side{padding:16px 24px 48px}
   .editor-grid{grid-template-columns:1fr;gap:40px}
   .result{position:static;padding:28px}
   .link-row{grid-template-columns:1fr 44px}
